@@ -84,6 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         })
         .catch((err) => {
           setError(err.message);
+          window.history.replaceState({}, '', '/');
         })
         .finally(() => {
           setIsLoading(false);
