@@ -1,7 +1,7 @@
 import { generatePKCE } from './pkce';
 
 const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-const CLIENT_SECRET = import.meta.env.VITE_GOOGLE_CLIENT_SECRET;
+const CLIENT_SECRET = import.meta.env.VITE_GOOGLE_CLIENT_SECRET || undefined;
 const REDIRECT_URI = `${window.location.origin}/callback`;
 const AUTH_ENDPOINT = 'https://accounts.google.com/o/oauth2/v2/auth';
 const TOKEN_ENDPOINT = 'https://oauth2.googleapis.com/token';
@@ -54,7 +54,7 @@ export async function handleCallback(code: string): Promise<TokenResponse> {
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({
       client_id: CLIENT_ID,
-      client_secret: CLIENT_SECRET,
+      ...(CLIENT_SECRET ? { client_secret: CLIENT_SECRET } : {}),
       code,
       code_verifier: codeVerifier,
       grant_type: 'authorization_code',
@@ -78,7 +78,7 @@ export async function refreshAccessToken(refreshToken: string): Promise<TokenRes
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({
       client_id: CLIENT_ID,
-      client_secret: CLIENT_SECRET,
+      ...(CLIENT_SECRET ? { client_secret: CLIENT_SECRET } : {}),
       refresh_token: refreshToken,
       grant_type: 'refresh_token',
     }),
