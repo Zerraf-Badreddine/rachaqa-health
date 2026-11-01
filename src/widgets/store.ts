@@ -6,6 +6,7 @@ export interface WidgetInstance {
 }
 
 const DEFAULT_INSTANCES: WidgetInstance[] = [
+  { id: 'weight-1', type: 'weight' },
   { id: 'sleep-1', type: 'sleep' },
   { id: 'readiness-1', type: 'readiness' },
   { id: 'hrv-1', type: 'hrv' },
@@ -21,7 +22,18 @@ const DEFAULT_INSTANCES: WidgetInstance[] = [
 export function loadInstances(): WidgetInstance[] {
   try {
     const stored = localStorage.getItem(INSTANCES_KEY);
-    if (stored) return JSON.parse(stored);
+    if (stored) {
+      const parsed: WidgetInstance[] = JSON.parse(stored);
+      if (!parsed.some((inst) => inst.type === 'weight')) {
+        parsed.unshift({ id: 'weight-1', type: 'weight' });
+      }
+      const seen = new Set<string>();
+      return parsed.filter((inst) => {
+        if (seen.has(inst.type)) return false;
+        seen.add(inst.type);
+        return true;
+      });
+    }
   } catch {}
   return DEFAULT_INSTANCES;
 }

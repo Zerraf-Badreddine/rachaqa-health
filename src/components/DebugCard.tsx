@@ -14,8 +14,8 @@ function Section({ title, data }: { title: string; data: unknown }) {
   if (!data) return null;
   return (
     <div className="mb-3">
-      <p className="text-xs font-semibold text-indigo-400 mb-1">{title}</p>
-      <pre className="text-[11px] text-gray-300 bg-gray-800/60 rounded-lg p-3 overflow-x-auto whitespace-pre-wrap break-all">
+      <p className="text-[11px] font-bold text-[#00B0B9] uppercase tracking-wider mb-1.5">{title}</p>
+      <pre className="text-xs text-slate-800 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/60 rounded-2xl p-3.5 border border-slate-200/80 dark:border-slate-700/60 overflow-x-auto whitespace-pre-wrap break-all font-mono leading-relaxed">
         {JSON.stringify(data, null, 2)}
       </pre>
     </div>
@@ -53,14 +53,26 @@ export function DebugCard() {
   if (error) return <ErrorCard title="Debug: User Info" error={error} />;
   if (!data) return null;
 
-  return (
-    <Card title="Debug: User Info" subtitle="Raw API responses">
+  const content = (
+    <>
       <Section title="Identity" data={data.identity} />
       <Section title="Profile" data={data.profile} />
       <Section title="Settings" data={data.settings} />
       {data.pairedDevices.map((device, i) => (
         <Section key={i} title={`Paired Device ${i + 1}`} data={device} />
       ))}
+    </>
+  );
+
+  return (
+    <Card
+      title="Debug: User Info"
+      subtitle="Raw API responses"
+      category="SYSTEM TELEMETRY"
+      accentColor="#64748B"
+      expandedContent={content}
+    >
+      {content}
     </Card>
   );
 }

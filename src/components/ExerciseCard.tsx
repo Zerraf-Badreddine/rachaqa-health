@@ -6,6 +6,7 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceA
 import { useAuth } from '../auth/AuthContext';
 import { listExercises, getExerciseHeartRate, type ExerciseDataPoint, type HeartRateZoneDurations, type HeartRateSample } from '../api/exercise';
 import { getDailyHeartRateZones } from '../api/cardio';
+import { Dumbbell } from 'lucide-react';
 import { Card, LoadingCard, ErrorCard } from './Card';
 
 function formatDuration(startTime: string, endTime: string): string {
@@ -361,7 +362,14 @@ export function ExerciseCard() {
 
   return (
     <>
-    <Card title="Exercises" subtitle={`${monthStats.totalExercises} exercises / ${monthStats.activeDays} days`}>
+    <Card
+      title="Workouts & Logs"
+      subtitle={`${monthStats.totalExercises} sessions / ${monthStats.activeDays} active days`}
+      category="TRAINING & WORKOUTS"
+      accentColor="#8B5CF6"
+      icon={<Dumbbell className="w-5 h-5 text-violet-400" />}
+      iconBg="bg-violet-500/10"
+    >
       <div className="flex gap-4 flex-1 min-h-0">
         <div className="exercise-calendar exercise-calendar-compact flex-shrink-0">
           <DayPicker

@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
-import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell, YAxis } from 'recharts';
+import { Sparkles } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
 import { getHrvData } from '../api/hrv';
 import { getRestingHrData } from '../api/resting-hr';
 import { getSleepData } from '../api/sleep';
 
-import { Card, LoadingCard, ErrorCard } from './Card';
+import { Card, LoadingCard, ErrorCard, EmptyCard } from './Card';
 import { useDateRange } from '../context/DateRangeContext';
 import { calcSleepScore } from '../utils/sleep-score';
+import { DashboardTooltip } from './common/DashboardTooltip';
 
 interface DayReadiness {
   date: string;
@@ -31,42 +33,37 @@ function calcReadiness(
   rhrBaseline: number,
   sleepScoreVal: number
 ): { score: number; hrvScore: number; rhrScore: number; sleepScore: number } {
-  // HRV score (40% weight): higher is better, compare to baseline
-  // At baseline (ratio=1.0) → 62 (normal day)
   let hrvScore = 50;
   if (hrvBaseline > 0) {
     const ratio = hrv / hrvBaseline;
     if (ratio >= 1.0) {
-      hrvScore = 62 + Math.min(38, (ratio - 1.0) * 76); // at baseline: 62, 1.5x: 100
+      hrvScore = 62 + Math.min(38, (ratio - 1.0) * 76);
     } else if (ratio >= 0.8) {
-      hrvScore = 30 + (ratio - 0.8) * 160; // 80-100% of baseline: 30-62
+      hrvScore = 30 + (ratio - 0.8) * 160;
     } else if (ratio >= 0.6) {
-      hrvScore = 10 + (ratio - 0.6) * 100; // 60-80% of baseline: 10-30
+      hrvScore = 10 + (ratio - 0.6) * 100;
     } else {
-      hrvScore = Math.max(3, ratio * 17); // below 60%: 3-10
+      hrvScore = Math.max(3, ratio * 17);
     }
   }
 
-  // RHR score (30% weight): lower is better, compare to baseline
-  // At baseline (ratio=1.0) → 62 (normal day)
   let rhrScore = 50;
   if (rhrBaseline > 0) {
-    const ratio = rhrBaseline / rhr; // >1 means lower than baseline (good)
+    const ratio = rhrBaseline / rhr;
     if (ratio >= 1.0) {
-      rhrScore = 62 + Math.min(38, (ratio - 1.0) * 127); // at baseline: 62, much lower: 100
+      rhrScore = 62 + Math.min(38, (ratio - 1.0) * 127);
     } else if (ratio >= 0.9) {
-      rhrScore = 30 + (ratio - 0.9) * 320; // 0-10% above baseline: 30-62
+      rhrScore = 30 + (ratio - 0.9) * 320;
     } else if (ratio >= 0.8) {
-      rhrScore = 10 + (ratio - 0.8) * 200; // 10-20% above: 10-30
+      rhrScore = 10 + (ratio - 0.8) * 200;
     } else {
-      rhrScore = Math.max(3, ratio * 12.5); // 20%+ above: 3-10
+      rhrScore = Math.max(3, ratio * 12.5);
     }
   }
 
-  // Sleep score (30% weight): use calibrated sleep score directly
   const sleepScore = sleepScoreVal;
-
   const score = Math.round(hrvScore * 0.4 + rhrScore * 0.3 + sleepScore * 0.3);
+
   return {
     score: Math.min(100, Math.max(0, score)),
     hrvScore: Math.round(hrvScore),
@@ -76,15 +73,15 @@ function calcReadiness(
 }
 
 function getScoreColor(score: number): string {
-  if (score >= 65) return '#22c55e'; // green - High
-  if (score >= 30) return '#f59e0b'; // amber - Middle
-  return '#ef4444'; // red - Low
+  if (score >= 65) return '#10B981';
+  if (score >= 30) return '#F59E0B';
+  return '#EF4444';
 }
 
 function getScoreLabel(score: number): string {
-  if (score >= 65) return 'High';
-  if (score >= 30) return 'Middle';
-  return 'Low';
+  if (score >= 65) return 'Ready to push';
+  if (score >= 30) return 'Moderate ready';
+  return 'Prioritize recovery';
 }
 
 export function ReadinessCard() {
@@ -103,7 +100,6 @@ export function ReadinessCard() {
       getSleepData(accessToken, daysBack),
     ])
       .then(([hrvData, rhrData, sleepData]) => {
-        // Build maps by date
         const hrvByDate: Record<string, number> = {};
         const allHrvValues: number[] = [];
         for (const d of hrvData) {
@@ -151,7 +147,6 @@ export function ReadinessCard() {
           }
         }
 
-        // Build readiness for last 7 days
         const result: DayReadiness[] = [];
         for (let i = daysBack - 1; i >= 0; i--) {
           const d = new Date();
@@ -188,71 +183,176 @@ export function ReadinessCard() {
       .finally(() => setLoading(false));
   }, [accessToken, daysBack]);
 
-  if (loading) return <LoadingCard title="Readiness" />;
-  if (error) return <ErrorCard title="Readiness" error={error} />;
-  if (days.length === 0) return <Card title="Readiness"><p className="text-gray-500 text-sm">No data</p></Card>;
+  if (loading) return <LoadingCard title="Daily Readiness" />;
+  if (error) return <ErrorCard title="Daily Readiness" error={error} />;
+  if (days.length === 0) return <EmptyCard title="Daily Readiness" message="Requires sleep and heart rate sensor logs" />;
 
   const today = days[days.length - 1];
   const weekAvg = Math.round(days.reduce((s, d) => s + d.score, 0) / days.length);
 
+  const expandedView = (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+        <div className="bg-slate-50 dark:bg-slate-800/60 rounded-2xl p-4 border border-slate-200/80 dark:border-slate-700/60 text-center">
+          <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Current Score</p>
+          <p className="text-4xl font-bold mt-1" style={{ color: getScoreColor(today.score) }}>{today.score}</p>
+          <p className="text-xs font-medium text-slate-500 mt-1">{getScoreLabel(today.score)}</p>
+        </div>
+        <div className="bg-slate-50 dark:bg-slate-800/60 rounded-2xl p-4 border border-slate-200/80 dark:border-slate-700/60 text-center">
+          <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">HRV Component</p>
+          <p className="text-3xl font-bold text-purple-500 mt-1">{today.hrvScore}%</p>
+          <p className="text-xs font-medium text-slate-500 mt-1">{today.hrv} ms</p>
+        </div>
+        <div className="bg-slate-50 dark:bg-slate-800/60 rounded-2xl p-4 border border-slate-200/80 dark:border-slate-700/60 text-center">
+          <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">RHR Component</p>
+          <p className="text-3xl font-bold text-rose-500 mt-1">{today.rhrScore}%</p>
+          <p className="text-xs font-medium text-slate-500 mt-1">{today.rhr} bpm</p>
+        </div>
+        <div className="bg-slate-50 dark:bg-slate-800/60 rounded-2xl p-4 border border-slate-200/80 dark:border-slate-700/60 text-center">
+          <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Sleep Component</p>
+          <p className="text-3xl font-bold text-sky-500 mt-1">{today.sleepScore}%</p>
+          <p className="text-xs font-medium text-slate-500 mt-1">{Math.floor(today.sleepMins / 60)}h {today.sleepMins % 60}m</p>
+        </div>
+      </div>
+
+      <div className="h-72 w-full bg-slate-50/50 dark:bg-slate-800/30 p-4 rounded-3xl border border-slate-200/80 dark:border-slate-800">
+        <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Readiness Score History</h4>
+        <ResponsiveContainer width="100%" height="88%">
+          <BarChart data={days}>
+            <XAxis dataKey="date" stroke="#94a3b8" fontSize={11} tickLine={false} />
+            <YAxis domain={[0, 100]} stroke="#94a3b8" fontSize={11} tickLine={false} />
+            <Tooltip
+              contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.95)', border: 'none', borderRadius: '12px', color: '#fff' }}
+              formatter={(val) => [`${val}/100`, 'Score']}
+            />
+            <Bar dataKey="score" radius={[6, 6, 0, 0]} barSize={28}>
+              {days.map((d) => (
+                <Cell key={d.date} fill={getScoreColor(d.score)} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+
+      <div>
+        <h4 className="text-sm font-bold text-slate-900 dark:text-white mb-3">Daily Breakdown</h4>
+        <div className="max-h-60 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800 rounded-2xl border border-slate-200 dark:border-slate-800">
+          {days.slice().reverse().map((d, idx) => (
+            <div key={idx} className="flex justify-between items-center py-2.5 px-4 text-xs">
+              <span className="font-medium text-slate-500 dark:text-slate-400">{d.date}</span>
+              <div className="flex items-center gap-4">
+                <span className="text-purple-500">HRV {d.hrv}ms</span>
+                <span className="text-rose-500">RHR {d.rhr}bpm</span>
+                <span className="text-sky-500">{Math.floor(d.sleepMins / 60)}h {d.sleepMins % 60}m</span>
+                <span className="font-bold px-2 py-0.5 rounded-full text-[11px]" style={{ color: getScoreColor(d.score) }}>
+                  {d.score}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
   return (
-    <div>
-    <Card title="Readiness" subtitle={`Last ${daysBack} days`}>
-      {/* Today's readiness - hero */}
-      <div className="flex items-center gap-5 mb-5">
+    <Card
+      title="Daily Readiness"
+      subtitle={`Last ${daysBack} days`}
+      category="AUTONOMIC BALANCE"
+      accentColor="#10B981"
+      icon={<Sparkles className="w-5 h-5 text-[#10B981]" />}
+      iconBg="bg-emerald-500/10"
+      expandedContent={expandedView}
+    >
+      <div className="flex items-center gap-4 mb-4">
         <div
-          className="w-20 h-20 rounded-full flex items-center justify-center border-4"
-          style={{ borderColor: getScoreColor(today.score) }}
+          className="w-16 h-16 rounded-3xl flex flex-col items-center justify-center border-2 shadow-lg transition-transform hover:scale-105"
+          style={{ borderColor: getScoreColor(today.score), backgroundColor: `${getScoreColor(today.score)}18` }}
         >
-          <span className="text-3xl font-bold" style={{ color: getScoreColor(today.score) }}>
+          <span className="font-mono text-2xl font-black tracking-tight tabular-nums" style={{ color: getScoreColor(today.score) }}>
             {today.score}
           </span>
+          <span className="text-[9px] font-extrabold uppercase tracking-widest text-slate-400">/ 100</span>
         </div>
-        <div>
-          <p className="text-lg font-semibold" style={{ color: getScoreColor(today.score) }}>
+        <div className="flex-1 min-w-0">
+          <p className="text-base font-black truncate" style={{ color: getScoreColor(today.score) }}>
             {getScoreLabel(today.score)}
           </p>
-          <p className="text-xs text-gray-500 mt-1">Week avg: {weekAvg}</p>
-          <div className="flex gap-3 mt-2 text-[11px] text-gray-400">
-            <span>HRV {today.hrvScore}%</span>
-            <span>RHR {today.rhrScore}%</span>
-            <span>Sleep {today.sleepScore}%</span>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-medium">Period Avg: <strong className="text-slate-700 dark:text-slate-200 tabular-nums">{weekAvg}</strong></p>
+          
+          {/* Component balance progress strips */}
+          <div className="grid grid-cols-3 gap-1.5 mt-2">
+            <div>
+              <div className="flex justify-between text-[9px] font-bold text-slate-400 mb-0.5">
+                <span>HRV</span>
+                <span className="tabular-nums">{today.hrvScore}%</span>
+              </div>
+              <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                <div className="h-full rounded-full bg-purple-500 transition-all duration-500" style={{ width: `${today.hrvScore}%` }} />
+              </div>
+            </div>
+            <div>
+              <div className="flex justify-between text-[9px] font-bold text-slate-400 mb-0.5">
+                <span>RHR</span>
+                <span className="tabular-nums">{today.rhrScore}%</span>
+              </div>
+              <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                <div className="h-full rounded-full bg-rose-500 transition-all duration-500" style={{ width: `${today.rhrScore}%` }} />
+              </div>
+            </div>
+            <div>
+              <div className="flex justify-between text-[9px] font-bold text-slate-400 mb-0.5">
+                <span>Sleep</span>
+                <span className="tabular-nums">{today.sleepScore}%</span>
+              </div>
+              <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                <div className="h-full rounded-full bg-indigo-500 transition-all duration-500" style={{ width: `${today.sleepScore}%` }} />
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Contributing factors */}
-      <div className="grid grid-cols-3 gap-2 mb-4">
-        <div className="bg-gray-800/50 rounded-lg p-2 text-center">
-          <p className="text-lg font-bold text-purple-400">{today.hrv}</p>
-          <p className="text-[10px] text-gray-500">HRV (ms)</p>
+      <div className="grid grid-cols-3 gap-2 mb-3">
+        <div className="bg-slate-50 dark:bg-white/[0.03] rounded-2xl p-2.5 text-center border border-slate-200/80 dark:border-white/[0.06]">
+          <p className="font-mono text-lg font-black text-purple-400 tabular-nums">{today.hrv}</p>
+          <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mt-0.5">HRV (ms)</p>
         </div>
-        <div className="bg-gray-800/50 rounded-lg p-2 text-center">
-          <p className="text-lg font-bold text-red-400">{today.rhr}</p>
-          <p className="text-[10px] text-gray-500">RHR (bpm)</p>
+        <div className="bg-slate-50 dark:bg-white/[0.03] rounded-2xl p-2.5 text-center border border-slate-200/80 dark:border-white/[0.06]">
+          <p className="font-mono text-lg font-black text-rose-400 tabular-nums">{today.rhr}</p>
+          <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mt-0.5">RHR (bpm)</p>
         </div>
-        <div className="bg-gray-800/50 rounded-lg p-2 text-center">
-          <p className="text-lg font-bold text-blue-400">
-            {Math.floor(today.sleepMins / 60)}:{String(today.sleepMins % 60).padStart(2, '0')}
+        <div className="bg-slate-50 dark:bg-white/[0.03] rounded-2xl p-2.5 text-center border border-slate-200/80 dark:border-white/[0.06]">
+          <p className="font-mono text-lg font-black text-indigo-400 tabular-nums">
+            {Math.floor(today.sleepMins / 60)}h {today.sleepMins % 60}m
           </p>
-          <p className="text-[10px] text-gray-500">Sleep</p>
+          <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mt-0.5">Sleep</p>
         </div>
       </div>
 
-      {/* 7-day readiness trend */}
       <div className="h-28">
-        <ResponsiveContainer>
-          <BarChart data={days} barSize={28}>
-            <XAxis dataKey="date" tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false} />
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={days} barSize={22}>
+            <XAxis dataKey="date" stroke="#94a3b8" fontSize={10} axisLine={false} tickLine={false} />
             <Tooltip
-              contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '12px' }}
-              formatter={(value, name) => {
-                if (name === 'score') return [`${value}/100`, 'Readiness'];
-                return [value, name];
+              content={({ active, payload, label }) => {
+                if (!active || !payload?.length) return null;
+                const d = payload[0].payload as DayReadiness;
+                return (
+                  <DashboardTooltip
+                    active={active}
+                    title={label}
+                    items={[
+                      { label: 'Readiness', value: `${d.score}/100`, color: getScoreColor(d.score) },
+                      { label: 'HRV', value: `${d.hrv} ms` },
+                      { label: 'RHR', value: `${d.rhr} bpm` },
+                    ]}
+                  />
+                );
               }}
-              labelFormatter={(label) => `${label}`}
             />
-            <Bar dataKey="score" radius={[4, 4, 0, 0]}>
+            <Bar dataKey="score" radius={[6, 6, 0, 0]}>
               {days.map((d) => (
                 <Cell key={d.date} fill={getScoreColor(d.score)} />
               ))}
@@ -261,6 +361,5 @@ export function ReadinessCard() {
         </ResponsiveContainer>
       </div>
     </Card>
-    </div>
   );
 }
