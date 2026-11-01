@@ -43,7 +43,7 @@ export function TermsOfService({ onBack }: { onBack?: () => void }) {
               Important Medical Disclaimer
             </div>
             <p>
-              Fitbit Health Dashboard is an informational analytics visualization tool designed solely for personal wellness exploration. It does <strong>not</strong> provide medical diagnoses, clinical guidance, or health treatment plans. Never disregard professional medical advice or delay seeking medical attention because of information viewed on this dashboard.
+              Rachaqa Health is an informational analytics visualization tool designed solely for personal wellness exploration. It does <strong>not</strong> provide medical diagnoses, clinical guidance, or health treatment plans. Never disregard professional medical advice or delay seeking medical attention because of information viewed on this dashboard.
             </p>
           </div>
 
@@ -53,7 +53,7 @@ export function TermsOfService({ onBack }: { onBack?: () => void }) {
               1. Acceptance of Terms
             </h2>
             <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-              By accessing or using the Fitbit Health Dashboard (&quot;Service&quot;), you acknowledge that you have read, understood, and agree to be bound by these Terms of Service. If you do not agree to these terms, do not access or use this application.
+              By accessing or using the Rachaqa Health application (&quot;Service&quot;), you acknowledge that you have read, understood, and agree to be bound by these Terms of Service. If you do not agree to these terms, do not access or use this application.
             </p>
           </section>
 

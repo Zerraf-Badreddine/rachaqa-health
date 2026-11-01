@@ -18,7 +18,7 @@ export function LoginScreen({
             <HeartPulse className="w-10 h-10 drop-shadow-sm" />
           </div>
           <h1 className="text-3xl md:text-4xl font-black tracking-tight text-slate-900 dark:text-white">
-            Fitbit <span className="text-[#00B0B9] font-medium">Health</span>
+            Rachaqa <span className="text-[#00B0B9] font-medium">Health</span>
           </h1>
           <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-2 max-w-sm leading-relaxed">
             Personal biometric intelligence and continuous health analytics from Google Health & Fitbit Cloud

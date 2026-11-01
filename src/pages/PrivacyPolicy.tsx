@@ -42,7 +42,7 @@ export function PrivacyPolicy({ onBack }: { onBack?: () => void }) {
               Google API Services User Data Policy Disclosure
             </p>
             <p>
-              Fitbit Health Dashboard&apos;s use and transfer to any other app of information received from Google APIs will adhere to the{' '}
+              Rachaqa Health&apos;s use and transfer to any other app of information received from Google APIs will adhere to the{' '}
               <a
                 href="https://developers.google.com/terms/api-services-user-data-policy"
                 target="_blank"
@@ -62,7 +62,7 @@ export function PrivacyPolicy({ onBack }: { onBack?: () => void }) {
               1. Overview & Architecture
             </h2>
             <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-              Fitbit Health Dashboard is designed as a client-side visualization application. We believe your personal biometric and wellness records belong strictly to you. All API requests made to Google Health and Fitbit services are executed directly from your personal web browser.
+              Rachaqa Health is designed as a client-side visualization application. We believe your personal biometric and wellness records belong strictly to you. All API requests made to Google Health and Fitbit services are executed directly from your personal web browser.
             </p>
             <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
               We do not maintain a remote database of health logs, nor do we run a centralized application server that inspects, stores, or processes your personal biometric records.

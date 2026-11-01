@@ -104,7 +104,7 @@ export function Layout({
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-base md:text-lg font-black tracking-tight text-slate-900 dark:text-white">
-                  Fitbit <span className="text-[#00B0B9] font-medium">Health</span>
+                  Rachaqa <span className="text-[#00B0B9] font-medium">Health</span>
                 </h1>
                 {tracker ? (
                   <span className="inline-flex items-center text-[11px] text-slate-600 dark:text-slate-300 bg-slate-100/90 dark:bg-white/[0.06] border border-slate-200/90 dark:border-white/[0.08] rounded-full px-2.5 py-0.5 gap-1.5 font-semibold shadow-xs">
@@ -222,7 +222,7 @@ export function Layout({
       </main>
 
       <footer className={`${fullWidth ? '' : 'max-w-7xl'} mx-auto w-full px-4 md:px-6 lg:px-8 py-6 text-xs text-slate-400 dark:text-slate-500 border-t border-slate-200/60 dark:border-white/[0.04] flex flex-col sm:flex-row items-center justify-between gap-3 mt-auto`}>
-        <p>Fitbit Health Dashboard • Personal health intelligence</p>
+        <p>Rachaqa Health • Personal health intelligence</p>
         <div className="flex items-center gap-4 font-semibold">
           <a
             href="/privacy"
