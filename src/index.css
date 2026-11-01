@@ -1,15 +1,106 @@
 @import "tailwindcss";
 
-/* react-day-picker dark theme */
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  color-scheme: light dark;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11", "tnum";
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom scrollbar for cards */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.25);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.45);
+}
+
+/* Acrylic / Glassmorphism Theme Overrides */
+.glass-theme {
+  --glass-blur: 28px;
+}
+
+.glass-theme .glass-card {
+  background: rgba(255, 255, 255, 0.65) !important;
+  backdrop-filter: blur(var(--glass-blur)) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(190%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.65) !important;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.04), inset 0 1px 0 0 rgba(255, 255, 255, 0.9) !important;
+}
+
+.glass-theme .glass-card:hover {
+  border-color: rgba(0, 176, 185, 0.4) !important;
+  box-shadow: 0 12px 36px 0 rgba(0, 176, 185, 0.08), inset 0 1px 0 0 rgba(255, 255, 255, 0.9) !important;
+}
+
+.dark.glass-theme .glass-card,
+.dark .glass-theme .glass-card {
+  background: rgba(18, 24, 32, 0.52) !important;
+  backdrop-filter: blur(var(--glass-blur)) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(190%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 12px 36px 0 rgba(0, 0, 0, 0.45), inset 0 1px 0 0 rgba(255, 255, 255, 0.12), inset 0 0 0 1px rgba(255, 255, 255, 0.03) !important;
+}
+
+.dark.glass-theme .glass-card:hover,
+.dark .glass-theme .glass-card:hover {
+  border-color: rgba(0, 176, 185, 0.35) !important;
+  box-shadow: 0 16px 40px 0 rgba(0, 0, 0, 0.55), 0 0 20px 0 rgba(0, 176, 185, 0.1), inset 0 1px 0 0 rgba(255, 255, 255, 0.16) !important;
+}
+
+.glass-theme .glass-header {
+  background: rgba(255, 255, 255, 0.72) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.5) !important;
+}
+
+.dark.glass-theme .glass-header,
+.dark .glass-theme .glass-header {
+  background: rgba(12, 16, 22, 0.72) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+button:focus-visible, a:focus-visible {
+  outline: 2px solid #00B0B9;
+  outline-offset: 2px;
+}
+
+/* react-day-picker theme */
 .exercise-calendar {
-  --rdp-accent-color: #818cf8;
-  --rdp-accent-background-color: #4f46e5;
+  --rdp-accent-color: #00B0B9;
+  --rdp-accent-background-color: #00B0B9;
   --rdp-outside-opacity: 0.3;
 }
 
 .exercise-calendar .rdp-root {
   font-size: 13px;
-  color: #9ca3af;
+  color: #64748b;
+}
+
+.dark .exercise-calendar .rdp-root {
+  color: #94a3b8;
 }
 
 .exercise-calendar .rdp-month_grid {
@@ -18,8 +109,13 @@
 
 .exercise-calendar .rdp-month_caption {
   font-size: 13px;
-  color: #d1d5db;
+  font-weight: 600;
+  color: #0f172a;
   padding: 0 0 6px;
+}
+
+.dark .exercise-calendar .rdp-month_caption {
+  color: #f8fafc;
 }
 
 .exercise-calendar .rdp-nav {
@@ -28,16 +124,22 @@
 
 .exercise-calendar .rdp-button_previous,
 .exercise-calendar .rdp-button_next {
-  color: #9ca3af;
+  color: #64748b;
   width: 24px;
   height: 24px;
-  border-radius: 6px;
+  border-radius: 8px;
 }
 
 .exercise-calendar .rdp-button_previous:hover,
 .exercise-calendar .rdp-button_next:hover {
+  color: #0f172a;
+  background: #f1f5f9;
+}
+
+.dark .exercise-calendar .rdp-button_previous:hover,
+.dark .exercise-calendar .rdp-button_next:hover {
   color: #fff;
-  background: #374151;
+  background: #334155;
 }
 
 .exercise-calendar .rdp-button_previous svg,
@@ -47,48 +149,56 @@
 }
 
 .exercise-calendar .rdp-chevron {
-  fill: #9ca3af;
+  fill: currentColor;
 }
 
 .exercise-calendar .rdp-weekday {
-  color: #6b7280;
+  color: #94a3b8;
   font-size: 11px;
-  font-weight: 500;
+  font-weight: 600;
   padding-bottom: 4px;
 }
 
 .exercise-calendar .rdp-day {
-  color: #6b7280;
-  border-radius: 8px;
+  color: #475569;
+  border-radius: 10px;
+}
+
+.dark .exercise-calendar .rdp-day {
+  color: #94a3b8;
 }
 
 .exercise-calendar .rdp-day_button {
-  border-radius: 8px;
+  border-radius: 10px;
 }
 
 .exercise-calendar .rdp-day:hover {
-  background: #1f2937;
+  background: #f1f5f9;
+}
+
+.dark .exercise-calendar .rdp-day:hover {
+  background: #1e293b;
 }
 
 .exercise-calendar .rdp-today .rdp-day_button {
-  color: #a5b4fc;
+  color: #00B0B9;
   font-weight: 700;
-  border: 1px solid #6366f1;
+  border: 1px solid #00B0B9;
 }
 
 .exercise-calendar .rdp-selected .rdp-day_button {
-  background: #4f46e5 !important;
+  background: #00B0B9 !important;
   color: #fff !important;
 }
 
 .exercise-calendar .rdp-exercise-day .rdp-day_button {
-  background: #22c55e;
+  background: #00B0B9;
   color: #fff;
   font-weight: 600;
 }
 
 .exercise-calendar .rdp-exercise-day.rdp-selected .rdp-day_button {
-  background: #16a34a !important;
+  background: #008f97 !important;
   color: #fff !important;
 }
 
@@ -119,19 +229,55 @@
 .exercise-calendar-compact .rdp-month_grid {
   border-spacing: 2px;
 }
+
 @import "react-grid-layout/css/styles.css";
 @import "react-resizable/css/styles.css";
 
+/* React Grid Layout modern styling */
+.react-grid-item {
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+
 .react-grid-item.react-grid-placeholder {
-  background: #334155;
-  border-radius: 1rem;
-  opacity: 0.35;
+  background: rgba(0, 176, 185, 0.12) !important;
+  border: 2px dashed rgba(0, 176, 185, 0.5) !important;
+  border-radius: 28px !important;
+  backdrop-filter: blur(12px) !important;
+  opacity: 1 !important;
+  z-index: 10 !important;
+}
+
+.react-grid-item.react-draggable-dragging {
+  z-index: 50 !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45) !important;
+  cursor: grabbing !important;
+  opacity: 0.95;
+  scale: 1.02;
+  transition: none !important;
+}
+
+.react-grid-item.resizing {
+  z-index: 40 !important;
+  transition: none !important;
 }
 
 .react-resizable-handle {
   z-index: 30;
+  width: 24px;
+  height: 24px;
+  bottom: 8px !important;
+  right: 8px !important;
+  cursor: se-resize;
 }
 
 .react-resizable-handle::after {
-  border-color: rgba(148, 163, 184, 0.85) !important;
+  content: "";
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid rgba(0, 176, 185, 0.6) !important;
+  border-bottom: 2px solid rgba(0, 176, 185, 0.6) !important;
+  border-radius: 1px;
 }
