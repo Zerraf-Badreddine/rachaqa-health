@@ -241,3 +241,28 @@ export interface UserIdentity {
   legacyUserId: string;
   healthUserId: string;
 }
+
+// Weight & Height types
+export interface WeightDataPoint {
+  name?: string;
+  dataSource?: DataSource;
+  weight?: {
+    sampleTime?: SampleTime;
+    weightGrams?: number | string;
+    bmi?: number;
+    bodyFatPercentage?: number;
+  };
+  weightGrams?: number | string;
+  sampleTime?: SampleTime;
+}
+
+export interface HeightDataPoint {
+  name?: string;
+  dataSource?: DataSource;
+  height?: {
+    sampleTime?: SampleTime;
+    heightMillimeters?: number | string;
+  };
+  heightMillimeters?: number | string;
+  sampleTime?: SampleTime;
+}

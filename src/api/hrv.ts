@@ -9,12 +9,28 @@ export async function getHrvData(
   startDate.setDate(startDate.getDate() - daysBack);
 
   const filter = `daily_heart_rate_variability.date >= "${startDate.toISOString().split('T')[0]}"`;
-  const params = new URLSearchParams({ filter });
+  const pageSize = Math.min(Math.max(daysBack, 50), 200).toString();
+  const params = new URLSearchParams({ filter, page_size: pageSize });
 
-  const data = await healthFetch<ListResponse<HrvDataPoint>>(
-    `/users/me/dataTypes/daily-heart-rate-variability/dataPoints?${params}`,
-    accessToken
-  );
+  try {
+    const data = await healthFetch<ListResponse<HrvDataPoint>>(
+      `/users/me/dataTypes/daily-heart-rate-variability/dataPoints?${params}`,
+      accessToken
+    );
+    if (data.dataPoints && data.dataPoints.length > 0) {
+      return data.dataPoints;
+    }
+  } catch {
+    // Retry without filter
+  }
 
-  return data.dataPoints || [];
+  try {
+    const data = await healthFetch<ListResponse<HrvDataPoint>>(
+      `/users/me/dataTypes/daily-heart-rate-variability/dataPoints?page_size=100`,
+      accessToken
+    );
+    return data.dataPoints || [];
+  } catch {
+    return [];
+  }
 }

@@ -10,7 +10,8 @@ import type {
 } from '../types/health';
 
 function getDailyRollUpBody(daysBack: number) {
-  const end = new Date();
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
   const start = new Date();
   start.setDate(start.getDate() - daysBack);
 
@@ -18,11 +19,11 @@ function getDailyRollUpBody(daysBack: number) {
     range: {
       start: {
         date: { year: start.getFullYear(), month: start.getMonth() + 1, day: start.getDate() },
-        time: { hours: 0, minutes: 0, seconds: 0, nanos: 0 },
+        time: { hours: 0, minutes: 0, seconds: 0 },
       },
       end: {
-        date: { year: end.getFullYear(), month: end.getMonth() + 1, day: end.getDate() },
-        time: { hours: 23, minutes: 59, seconds: 59, nanos: 0 },
+        date: { year: tomorrow.getFullYear(), month: tomorrow.getMonth() + 1, day: tomorrow.getDate() },
+        time: { hours: 0, minutes: 0, seconds: 0 },
       },
     },
     windowSizeDays: 1,
@@ -36,16 +37,21 @@ function startDateFilter(daysBack: number, field: string) {
 }
 
 async function getDailyRollup<T>(accessToken: string, dataType: string, daysBack: number): Promise<T[]> {
-  const data = await healthFetch<RollupResponse<T>>(
-    `/users/me/dataTypes/${dataType}/dataPoints:dailyRollUp`,
-    accessToken,
-    {
-      method: 'POST',
-      body: JSON.stringify(getDailyRollUpBody(daysBack)),
-    }
-  );
+  try {
+    const clamped = Math.min(daysBack, 85);
+    const data = await healthFetch<RollupResponse<T>>(
+      `/users/me/dataTypes/${dataType}/dataPoints:dailyRollUp`,
+      accessToken,
+      {
+        method: 'POST',
+        body: JSON.stringify(getDailyRollUpBody(clamped)),
+      }
+    );
 
-  return data.rollupDataPoints || [];
+    return data.rollupDataPoints || [];
+  } catch {
+    return [];
+  }
 }
 
 export function getActiveZoneMinutesDaily(accessToken: string, daysBack: number = 7) {
@@ -57,7 +63,8 @@ export function getTimeInHeartRateZoneDaily(accessToken: string, daysBack: numbe
 }
 
 export function getActiveMinutesDaily(accessToken: string, daysBack: number = 7) {
-  return getDailyRollup<ActiveMinutesRollupDataPoint>(accessToken, 'active-minutes', daysBack);
+  // active-minutes allows max 14 days rollup
+  return getDailyRollup<ActiveMinutesRollupDataPoint>(accessToken, 'active-minutes', Math.min(daysBack, 14));
 }
 
 export async function getDailyVo2Max(accessToken: string, daysBack: number = 30) {
@@ -66,12 +73,15 @@ export async function getDailyVo2Max(accessToken: string, daysBack: number = 30)
     page_size: '100',
   });
 
-  const data = await healthFetch<ListResponse<DailyVo2MaxDataPoint>>(
-    `/users/me/dataTypes/daily-vo2-max/dataPoints?${params}`,
-    accessToken
-  );
-
-  return data.dataPoints || [];
+  try {
+    const data = await healthFetch<ListResponse<DailyVo2MaxDataPoint>>(
+      `/users/me/dataTypes/daily-vo2-max/dataPoints?${params}`,
+      accessToken
+    );
+    return data.dataPoints || [];
+  } catch {
+    return [];
+  }
 }
 
 export async function getDailyHeartRateZones(accessToken: string, daysBack: number = 30) {
@@ -80,10 +90,13 @@ export async function getDailyHeartRateZones(accessToken: string, daysBack: numb
     page_size: '100',
   });
 
-  const data = await healthFetch<ListResponse<DailyHeartRateZonesDataPoint>>(
-    `/users/me/dataTypes/daily-heart-rate-zones/dataPoints?${params}`,
-    accessToken
-  );
-
-  return data.dataPoints || [];
+  try {
+    const data = await healthFetch<ListResponse<DailyHeartRateZonesDataPoint>>(
+      `/users/me/dataTypes/daily-heart-rate-zones/dataPoints?${params}`,
+      accessToken
+    );
+    return data.dataPoints || [];
+  } catch {
+    return [];
+  }
 }

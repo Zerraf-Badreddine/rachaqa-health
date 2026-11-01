@@ -9,12 +9,28 @@ export async function getSleepData(
   startDate.setDate(startDate.getDate() - daysBack);
 
   const filter = `sleep.interval.civil_end_time >= "${startDate.toISOString().split('T')[0]}"`;
-  const params = new URLSearchParams({ filter, page_size: '20' });
+  const pageSize = Math.min(Math.max(daysBack, 50), 200).toString();
+  const params = new URLSearchParams({ filter, page_size: pageSize });
 
-  const data = await healthFetch<ListResponse<SleepDataPoint>>(
-    `/users/me/dataTypes/sleep/dataPoints?${params}`,
-    accessToken
-  );
+  try {
+    const data = await healthFetch<ListResponse<SleepDataPoint>>(
+      `/users/me/dataTypes/sleep/dataPoints?${params}`,
+      accessToken
+    );
+    if (data.dataPoints && data.dataPoints.length > 0) {
+      return data.dataPoints;
+    }
+  } catch {
+    // If filtered query fails, retry without filter
+  }
 
-  return data.dataPoints || [];
+  try {
+    const data = await healthFetch<ListResponse<SleepDataPoint>>(
+      `/users/me/dataTypes/sleep/dataPoints?page_size=100`,
+      accessToken
+    );
+    return data.dataPoints || [];
+  } catch {
+    return [];
+  }
 }
