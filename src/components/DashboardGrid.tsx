@@ -37,6 +37,8 @@ import {
 } from '../widgets/store';
 import { useWidgetData } from '../context/WidgetDataContext';
 import { TodayHero } from './fitbit/TodayHero';
+import { KeyMetricsGrid } from './fitbit/KeyMetricsGrid';
+import { type GoogleHealthTab } from './Layout';
 import { CardContext } from './Card';
 
 const LAYOUT_KEY = 'dashboard_layout_v8';
@@ -222,7 +224,7 @@ function AddWidgetModal({
   );
 }
 
-export function DashboardGrid() {
+export function DashboardGrid({ activeTab = 'today' }: { activeTab?: GoogleHealthTab }) {
   const { dataStatus } = useWidgetData();
   const [instances, setInstances] = useState<WidgetInstance[]>(loadInstances);
   const [layouts, setLayouts] = useState<ResponsiveLayouts>(() => {
@@ -337,15 +339,32 @@ export function DashboardGrid() {
   }, []);
 
   const visibleInstances = instances.filter((inst) => {
-    if (selectedCategory === 'all') return true;
-    const def = WIDGET_REGISTRY[inst.type];
-    return def?.category === selectedCategory;
+    if (selectedCategory !== 'all') {
+      const def = WIDGET_REGISTRY[inst.type];
+      return def?.category === selectedCategory;
+    }
+    // Filter by tab when selectedCategory is 'all'
+    if (activeTab === 'fitness') {
+      const def = WIDGET_REGISTRY[inst.type];
+      return def?.category === 'activity' || inst.type === 'daily-hr' || inst.type === 'heart-zones';
+    }
+    if (activeTab === 'sleep') {
+      return inst.type === 'sleep' || inst.type === 'hrv' || inst.type === 'readiness' || inst.type === 'resting-hr';
+    }
+    if (activeTab === 'health') {
+      return inst.type === 'weight' || inst.type === 'resting-hr' || inst.type === 'hrv' || inst.type === 'readiness' || inst.type === 'nutrition' || inst.type === 'debug';
+    }
+    return true;
   });
 
   return (
     <div>
-      {/* Signature Fitbit Today Dial Hero */}
-      <TodayHero />
+      {/* Top Header Section based on Active Tab */}
+      {activeTab === 'health' ? (
+        <KeyMetricsGrid />
+      ) : activeTab === 'sleep' ? null : (
+        <TodayHero />
+      )}
 
       {/* Toolbar */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-6">

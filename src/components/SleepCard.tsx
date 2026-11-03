@@ -35,10 +35,10 @@ function formatMinutesShort(mins: number): string {
 }
 
 const STAGE_COLORS: Record<string, string> = {
-  DEEP: '#3b82f6',
-  REM: '#06b6d4',
-  LIGHT: '#93c5fd',
-  AWAKE: '#f43f5e',
+  DEEP: '#1E3A8A',
+  REM: '#4DD0E1',
+  LIGHT: '#64B5F6',
+  AWAKE: '#FF6B6B',
 };
 
 interface NightData {

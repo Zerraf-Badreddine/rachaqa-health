@@ -3,7 +3,7 @@ import { HeartPulse } from 'lucide-react';
 import { useAuth } from './auth/AuthContext';
 import { setRefreshFn } from './api/client';
 import { LoginScreen } from './components/LoginScreen';
-import { Layout } from './components/Layout';
+import { Layout, type GoogleHealthTab } from './components/Layout';
 import { DashboardGrid } from './components/DashboardGrid';
 import { DateRangeProvider } from './context/DateRangeContext';
 import { WidgetDataProvider } from './context/WidgetDataContext';
@@ -15,6 +15,7 @@ import { AcrylicBackground } from './components/common/AcrylicBackground';
 export default function App() {
   const { isAuthenticated, isLoading, error, refreshToken } = useAuth();
   const [currentPath, setCurrentPath] = useState<string>(() => window.location.pathname);
+  const [activeTab, setActiveTab] = useState<GoogleHealthTab>('today');
 
   const navigate = useCallback((path: string) => {
     window.history.pushState({}, '', path);
@@ -75,8 +76,8 @@ export default function App() {
     <ThemeProvider>
       <DateRangeProvider>
         <WidgetDataProvider>
-          <Layout onNavigate={navigate}>
-            <DashboardGrid />
+          <Layout activeTab={activeTab} onSelectTab={setActiveTab} onNavigate={navigate}>
+            <DashboardGrid activeTab={activeTab} />
           </Layout>
         </WidgetDataProvider>
       </DateRangeProvider>
