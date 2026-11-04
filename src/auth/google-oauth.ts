@@ -92,8 +92,12 @@ export async function refreshAccessToken(refreshToken: string): Promise<TokenRes
 }
 
 export function logout(): void {
+  localStorage.removeItem('access_token');
+  localStorage.removeItem('refresh_token');
+  localStorage.removeItem('token_expiry');
   sessionStorage.removeItem('access_token');
   sessionStorage.removeItem('refresh_token');
   sessionStorage.removeItem('token_expiry');
+  sessionStorage.removeItem('pkce_code_verifier');
   window.location.href = '/';
 }

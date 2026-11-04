@@ -132,7 +132,7 @@ export function PrivacyPolicy({ onBack }: { onBack?: () => void }) {
               5. Data Storage, Retention, & Deletion
             </h2>
             <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-              OAuth access tokens and temporary data are held strictly in your browser&apos;s ephemeral session memory (<code className="text-xs bg-slate-200/70 dark:bg-slate-800 px-1.5 py-0.5 rounded">sessionStorage</code>).
+              OAuth access tokens and session data are held strictly in your private local browser storage (<code className="text-xs bg-slate-200/70 dark:bg-slate-800 px-1.5 py-0.5 rounded">localStorage</code>).
             </p>
             <ul className="list-disc pl-6 space-y-2 text-sm text-slate-600 dark:text-slate-300">
               <li>

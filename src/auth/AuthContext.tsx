@@ -23,9 +23,43 @@ export function useAuth() {
   return useContext(AuthContext);
 }
 
+function getStoredToken(key: string): string | null {
+  const fromLocal = localStorage.getItem(key);
+  if (fromLocal) return fromLocal;
+  const fromSession = sessionStorage.getItem(key);
+  if (fromSession) {
+    localStorage.setItem(key, fromSession);
+    sessionStorage.removeItem(key);
+    return fromSession;
+  }
+  return null;
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [accessToken, setAccessToken] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [accessToken, setAccessToken] = useState<string | null>(() => {
+    const token = getStoredToken('access_token');
+    const expiry = getStoredToken('token_expiry');
+    if (token && expiry && Number(expiry) > Date.now() + 60_000) {
+      return token;
+    }
+    return null;
+  });
+
+  const [isLoading, setIsLoading] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return true;
+    const url = new URL(window.location.href);
+    if (url.searchParams.has('code') || url.searchParams.has('error')) return true;
+    const token = getStoredToken('access_token');
+    const expiry = getStoredToken('token_expiry');
+    if (token && expiry && Number(expiry) > Date.now() + 60_000) {
+      return false;
+    }
+    if (getStoredToken('refresh_token')) {
+      return true;
+    }
+    return false;
+  });
+
   const [error, setError] = useState<string | null>(null);
   const refreshTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
@@ -33,9 +67,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const tokens = await refreshAccessToken(token);
       setAccessToken(tokens.access_token);
-      sessionStorage.setItem('access_token', tokens.access_token);
+      localStorage.setItem('access_token', tokens.access_token);
+      localStorage.setItem('token_expiry', String(Date.now() + tokens.expires_in * 1000));
       if (tokens.refresh_token) {
-        sessionStorage.setItem('refresh_token', tokens.refresh_token);
+        localStorage.setItem('refresh_token', tokens.refresh_token);
       }
       // Schedule next refresh 5 min before expiry
       if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current);
@@ -46,14 +81,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch {
       setError('Session expired. Please log in again.');
       setAccessToken(null);
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      localStorage.removeItem('token_expiry');
       sessionStorage.removeItem('access_token');
+      sessionStorage.removeItem('refresh_token');
+      sessionStorage.removeItem('token_expiry');
       return null;
     }
   }, []);
 
   // Expose a refresh function for the API client to call on 401
   const refreshTokenFn = useCallback(async (): Promise<string | null> => {
-    const rt = sessionStorage.getItem('refresh_token');
+    const rt = getStoredToken('refresh_token');
     if (!rt) return null;
     return doRefresh(rt);
   }, [doRefresh]);
@@ -74,9 +114,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       handleCallback(code)
         .then((tokens) => {
           setAccessToken(tokens.access_token);
-          sessionStorage.setItem('access_token', tokens.access_token);
+          localStorage.setItem('access_token', tokens.access_token);
+          localStorage.setItem('token_expiry', String(Date.now() + tokens.expires_in * 1000));
           if (tokens.refresh_token) {
-            sessionStorage.setItem('refresh_token', tokens.refresh_token);
+            localStorage.setItem('refresh_token', tokens.refresh_token);
             const refreshMs = Math.max((tokens.expires_in - 300) * 1000, 10000);
             refreshTimerRef.current = setTimeout(() => { doRefresh(tokens.refresh_token!); }, refreshMs);
           }
@@ -92,10 +133,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    // Existing session — always refresh the token on startup
-    const refreshToken = sessionStorage.getItem('refresh_token');
-    if (refreshToken) {
-      doRefresh(refreshToken).finally(() => setIsLoading(false));
+    // Existing session
+    const storedAccessToken = getStoredToken('access_token');
+    const storedExpiry = getStoredToken('token_expiry');
+    const storedRefreshToken = getStoredToken('refresh_token');
+
+    const isTokenValid = storedAccessToken && storedExpiry && Number(storedExpiry) > Date.now() + 60_000;
+
+    if (isTokenValid) {
+      setAccessToken(storedAccessToken);
+      setIsLoading(false);
+      if (storedRefreshToken) {
+        const msUntilRefresh = Math.max(Number(storedExpiry) - Date.now() - 300_000, 10_000);
+        refreshTimerRef.current = setTimeout(() => {
+          doRefresh(storedRefreshToken);
+        }, msUntilRefresh);
+      }
+    } else if (storedRefreshToken) {
+      doRefresh(storedRefreshToken).finally(() => setIsLoading(false));
     } else {
       setIsLoading(false);
     }
