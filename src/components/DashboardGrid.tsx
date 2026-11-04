@@ -233,7 +233,7 @@ export function DashboardGrid({ activeTab = 'today' }: { activeTab?: GoogleHealt
     const stored = loadLayouts();
     return ensureLayoutsForInstances(stored, loadInstances());
   });
-  const [filterMode, setFilterMode] = useState<'focus' | 'all'>('focus');
+  const [filterMode, setFilterMode] = useState<'focus' | 'all'>('all');
   const [viewMode, setViewMode] = useState<'feed' | 'grid'>(() => {
     try {
       const stored = localStorage.getItem(VIEW_MODE_KEY);
@@ -247,6 +247,17 @@ export function DashboardGrid({ activeTab = 'today' }: { activeTab?: GoogleHealt
   const { width, containerRef, mounted } = useContainerWidth({ initialWidth: 1280 });
 
   useEffect(() => {
+    // Deduplicate instances by type and persist
+    const seen = new Set<string>();
+    const unique = instances.filter((inst) => {
+      if (seen.has(inst.type)) return false;
+      seen.add(inst.type);
+      return true;
+    });
+    if (unique.length !== instances.length) {
+      setInstances(unique);
+      return;
+    }
     saveInstances(instances);
   }, [instances]);
 
@@ -260,10 +271,26 @@ export function DashboardGrid({ activeTab = 'today' }: { activeTab?: GoogleHealt
   }
 
   const addWidget = useCallback((type: string) => {
-    const id = createInstanceId(type);
-    const newInst: WidgetInstance = { id, type };
-    setInstances((prev) => [...prev, newInst]);
-    setLayouts((prev) => ensureLayoutsForInstances(prev, [...instances, newInst]));
+    let nextInstances: WidgetInstance[] = [];
+    setInstances((prev) => {
+      const existing = prev.find((inst) => inst.type === type);
+      if (existing) {
+        // Move to the very top so user sees it right away
+        nextInstances = [existing, ...prev.filter((inst) => inst.id !== existing.id)];
+      } else {
+        const id = createInstanceId(type);
+        const newInst: WidgetInstance = { id, type };
+        nextInstances = [newInst, ...prev];
+      }
+      return nextInstances;
+    });
+
+    setLayouts((layoutsPrev) => {
+      const targetInst = nextInstances.length > 0 ? nextInstances : instances;
+      return ensureLayoutsForInstances(layoutsPrev, targetInst);
+    });
+
+    setFilterMode('all');
   }, [instances]);
 
   const removeWidget = useCallback((id: string) => {
@@ -341,16 +368,30 @@ export function DashboardGrid({ activeTab = 'today' }: { activeTab?: GoogleHealt
   }, []);
 
   const tabFilterSets: Record<GoogleHealthTab, string[]> = {
-    today: ['activity', 'readiness', 'sleep', 'daily-hr', 'cardio'],
+    today: [
+      'weight',
+      'activity',
+      'readiness',
+      'sleep',
+      'daily-hr',
+      'resting-hr',
+      'cardio',
+      'heart-zones',
+      'exercise',
+      'nutrition',
+      'hrv',
+      'debug',
+    ],
     fitness: ['exercise', 'cardio', 'heart-zones', 'activity', 'daily-hr'],
     sleep: ['sleep', 'readiness', 'hrv', 'resting-hr'],
     health: ['weight', 'resting-hr', 'hrv', 'nutrition', 'debug'],
   };
 
   const visibleInstances = instances.filter((inst) => {
+    if (activeTab === 'today') return true;
     if (filterMode === 'all') return true;
-    const allowed = tabFilterSets[activeTab] || tabFilterSets.today;
-    return allowed.includes(inst.type);
+    const allowed = tabFilterSets[activeTab];
+    return allowed ? allowed.includes(inst.type) : true;
   });
 
   return (
@@ -406,35 +447,42 @@ export function DashboardGrid({ activeTab = 'today' }: { activeTab?: GoogleHealt
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-6">
         {/* Tab Title and Focus Toggle */}
         <div className="flex items-center gap-3 flex-wrap">
-          <h3 className="text-base sm:text-lg font-black tracking-tight text-slate-900 dark:text-white">
-            {activeTab === 'today' && "Today's Metrics"}
-            {activeTab === 'fitness' && 'Fitness Logs & Zones'}
-            {activeTab === 'sleep' && 'Sleep Architecture'}
-            {activeTab === 'health' && 'Biometric Trends'}
-          </h3>
-
-          <div className="flex items-center bg-slate-100 dark:bg-white/[0.05] border border-slate-200/80 dark:border-white/[0.08] p-0.5 rounded-2xl text-xs">
-            <button
-              onClick={() => setFilterMode('focus')}
-              className={`px-3 py-1 rounded-xl font-bold transition-all cursor-pointer ${
-                filterMode === 'focus'
-                  ? 'bg-white dark:bg-slate-800 text-[#00B0B9] dark:text-teal-300 shadow-xs'
-                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-              }`}
-            >
-              Focus ({tabFilterSets[activeTab]?.length || 5})
-            </button>
-            <button
-              onClick={() => setFilterMode('all')}
-              className={`px-3 py-1 rounded-xl font-bold transition-all cursor-pointer ${
-                filterMode === 'all'
-                  ? 'bg-white dark:bg-slate-800 text-[#00B0B9] dark:text-teal-300 shadow-xs'
-                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-              }`}
-            >
-              All Cards ({instances.length})
-            </button>
+          <div className="flex items-center gap-2">
+            <h3 className="text-base sm:text-lg font-black tracking-tight text-slate-900 dark:text-white">
+              {activeTab === 'today' && "Today's Metrics"}
+              {activeTab === 'fitness' && 'Fitness Logs & Zones'}
+              {activeTab === 'sleep' && 'Sleep Architecture'}
+              {activeTab === 'health' && 'Biometric Trends'}
+            </h3>
+            <span className="text-xs px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-white/[0.08] font-bold text-slate-600 dark:text-slate-300">
+              {visibleInstances.length} cards
+            </span>
           </div>
+
+          {activeTab !== 'today' && (
+            <div className="flex items-center bg-slate-100 dark:bg-white/[0.05] border border-slate-200/80 dark:border-white/[0.08] p-0.5 rounded-2xl text-xs">
+              <button
+                onClick={() => setFilterMode('focus')}
+                className={`px-3 py-1 rounded-xl font-bold transition-all cursor-pointer ${
+                  filterMode === 'focus'
+                    ? 'bg-white dark:bg-slate-800 text-[#00B0B9] dark:text-teal-300 shadow-xs'
+                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                }`}
+              >
+                Focus ({tabFilterSets[activeTab]?.length || 5})
+              </button>
+              <button
+                onClick={() => setFilterMode('all')}
+                className={`px-3 py-1 rounded-xl font-bold transition-all cursor-pointer ${
+                  filterMode === 'all'
+                    ? 'bg-white dark:bg-slate-800 text-[#00B0B9] dark:text-teal-300 shadow-xs'
+                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                }`}
+              >
+                All Cards ({instances.length})
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Action Buttons */}
