@@ -38,6 +38,8 @@ import {
 import { useWidgetData } from '../context/WidgetDataContext';
 import { TodayHero } from './fitbit/TodayHero';
 import { KeyMetricsGrid } from './fitbit/KeyMetricsGrid';
+import { ActivityTrackedCard } from './fitbit/ActivityTrackedCard';
+import { CoachWelcomeCard } from './fitbit/CoachWelcomeCard';
 import { type GoogleHealthTab } from './Layout';
 import { CardContext } from './Card';
 
@@ -231,7 +233,7 @@ export function DashboardGrid({ activeTab = 'today' }: { activeTab?: GoogleHealt
     const stored = loadLayouts();
     return ensureLayoutsForInstances(stored, loadInstances());
   });
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [filterMode, setFilterMode] = useState<'focus' | 'all'>('focus');
   const [viewMode, setViewMode] = useState<'feed' | 'grid'>(() => {
     try {
       const stored = localStorage.getItem(VIEW_MODE_KEY);
@@ -338,69 +340,101 @@ export function DashboardGrid({ activeTab = 'today' }: { activeTab?: GoogleHealt
     setDragOverId(null);
   }, []);
 
+  const tabFilterSets: Record<GoogleHealthTab, string[]> = {
+    today: ['activity', 'readiness', 'sleep', 'daily-hr', 'cardio'],
+    fitness: ['exercise', 'cardio', 'heart-zones', 'activity', 'daily-hr'],
+    sleep: ['sleep', 'readiness', 'hrv', 'resting-hr'],
+    health: ['weight', 'resting-hr', 'hrv', 'nutrition', 'debug'],
+  };
+
   const visibleInstances = instances.filter((inst) => {
-    if (selectedCategory !== 'all') {
-      const def = WIDGET_REGISTRY[inst.type];
-      return def?.category === selectedCategory;
-    }
-    // Filter by tab when selectedCategory is 'all'
-    if (activeTab === 'fitness') {
-      const def = WIDGET_REGISTRY[inst.type];
-      return def?.category === 'activity' || inst.type === 'daily-hr' || inst.type === 'heart-zones';
-    }
-    if (activeTab === 'sleep') {
-      return inst.type === 'sleep' || inst.type === 'hrv' || inst.type === 'readiness' || inst.type === 'resting-hr';
-    }
-    if (activeTab === 'health') {
-      return inst.type === 'weight' || inst.type === 'resting-hr' || inst.type === 'hrv' || inst.type === 'readiness' || inst.type === 'nutrition' || inst.type === 'debug';
-    }
-    return true;
+    if (filterMode === 'all') return true;
+    const allowed = tabFilterSets[activeTab] || tabFilterSets.today;
+    return allowed.includes(inst.type);
   });
 
   return (
     <div>
-      {/* Top Header Section based on Active Tab */}
-      {activeTab === 'health' ? (
+      {/* Top Section based on Active Tab */}
+      {activeTab === 'today' && (
+        <>
+          <TodayHero />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
+            <ActivityTrackedCard />
+            <CoachWelcomeCard />
+          </div>
+        </>
+      )}
+
+      {activeTab === 'fitness' && (
+        <div className="rounded-[28px] bg-gradient-to-r from-teal-500/10 via-cyan-500/10 to-blue-500/10 border border-teal-500/20 p-6 mb-6">
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-2xl bg-[#00B0B9] text-white flex items-center justify-center shadow-md">
+              <Dumbbell className="w-6 h-6" />
+            </div>
+            <div>
+              <h2 className="text-xl font-black text-slate-900 dark:text-white">Fitness & Training</h2>
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">
+                Workout telemetry, cardio zones, and aerobic capacity
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'sleep' && (
+        <div className="rounded-[28px] bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-blue-500/10 border border-indigo-500/20 p-6 mb-6">
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow-md">
+              <Moon className="w-6 h-6" />
+            </div>
+            <div>
+              <h2 className="text-xl font-black text-slate-900 dark:text-white">Sleep & Recovery</h2>
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">
+                Circadian rhythm, sleep stages, and autonomic restorative rest
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'health' && (
         <KeyMetricsGrid />
-      ) : activeTab === 'sleep' ? null : (
-        <TodayHero />
       )}
 
       {/* Toolbar */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-6">
-        {/* Category Pills */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
-          {[
-            { id: 'all', label: 'All Cards' },
-            { id: 'activity', label: 'Activity' },
-            { id: 'heart', label: 'Heart & Cardio' },
-            { id: 'body', label: 'Body & Nutrition' },
-            { id: 'sleep', label: 'Sleep' },
-          ].map((cat) => {
-            const count = cat.id === 'all'
-              ? instances.length
-              : instances.filter((inst) => WIDGET_REGISTRY[inst.type]?.category === cat.id).length;
-            return (
-              <button
-                key={cat.id}
-                onClick={() => setSelectedCategory(cat.id)}
-                className={`px-3.5 py-1.5 rounded-2xl font-bold transition-all cursor-pointer whitespace-nowrap text-xs flex items-center gap-1.5 ${
-                  selectedCategory === cat.id
-                    ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-950 shadow-sm'
-                    : 'bg-white/80 dark:bg-white/[0.04] text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-slate-200/80 dark:border-white/[0.06]'
-                }`}
-              >
-                <span>{cat.label}</span>
-                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
-                  selectedCategory === cat.id
-                    ? 'bg-white/20 text-white dark:bg-slate-900/20 dark:text-slate-900'
-                    : 'bg-slate-100 dark:bg-white/[0.06] text-slate-400'
-                }`}>
-                  {count}
-                </span>
-              </button>
-            );
-          })}
+        {/* Tab Title and Focus Toggle */}
+        <div className="flex items-center gap-3 flex-wrap">
+          <h3 className="text-base sm:text-lg font-black tracking-tight text-slate-900 dark:text-white">
+            {activeTab === 'today' && "Today's Metrics"}
+            {activeTab === 'fitness' && 'Fitness Logs & Zones'}
+            {activeTab === 'sleep' && 'Sleep Architecture'}
+            {activeTab === 'health' && 'Biometric Trends'}
+          </h3>
+
+          <div className="flex items-center bg-slate-100 dark:bg-white/[0.05] border border-slate-200/80 dark:border-white/[0.08] p-0.5 rounded-2xl text-xs">
+            <button
+              onClick={() => setFilterMode('focus')}
+              className={`px-3 py-1 rounded-xl font-bold transition-all cursor-pointer ${
+                filterMode === 'focus'
+                  ? 'bg-white dark:bg-slate-800 text-[#00B0B9] dark:text-teal-300 shadow-xs'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              Focus ({tabFilterSets[activeTab]?.length || 5})
+            </button>
+            <button
+              onClick={() => setFilterMode('all')}
+              className={`px-3 py-1 rounded-xl font-bold transition-all cursor-pointer ${
+                filterMode === 'all'
+                  ? 'bg-white dark:bg-slate-800 text-[#00B0B9] dark:text-teal-300 shadow-xs'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              All Cards ({instances.length})
+            </button>
+          </div>
         </div>
 
         {/* Action Buttons */}

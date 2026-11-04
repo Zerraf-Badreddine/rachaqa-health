@@ -12,12 +12,10 @@ import {
   Play,
   Pencil,
   Check,
-  MessageSquare,
   X,
   Droplets,
   Scale,
   UtensilsCrossed,
-  ArrowRight,
 } from 'lucide-react';
 import { useAuth } from '../../auth/AuthContext';
 import { getStepsDaily, getCaloriesDaily } from '../../api/activity';
@@ -41,12 +39,6 @@ export function TodayHero() {
   const [readinessScore, setReadinessScore] = useState(78);
   const [exerciseDays, setExerciseDays] = useState(6);
   const [activeHours] = useState(5);
-  const [latestExercise, setLatestExercise] = useState<{
-    name: string;
-    time: string;
-    duration: string;
-    distance?: string;
-  } | null>(null);
   const [loading, setLoading] = useState(true);
 
   // Carousel view: 0 = Weekly Cardio Dial (Dark/Light screenshot 1 & 3), 1 = Mint Steps Hero (screenshot 2)
@@ -55,7 +47,6 @@ export function TodayHero() {
   // Modals state
   const [showLogModal, setShowLogModal] = useState(false);
   const [showStartModal, setShowStartModal] = useState(false);
-  const [showCoachModal, setShowCoachModal] = useState(false);
   const [workoutActive, setWorkoutActive] = useState(false);
   const [workoutSeconds, setWorkoutSeconds] = useState(0);
 
@@ -129,19 +120,6 @@ export function TodayHero() {
 
       if (exRes.status === 'fulfilled' && exRes.value.length > 0) {
         setExerciseDays(Math.min(7, exRes.value.length));
-        const lastEx = exRes.value[0];
-        const start = lastEx.exercise?.interval?.startTime;
-        const end = lastEx.exercise?.interval?.endTime;
-        const durMin = start && end ? Math.round((new Date(end).getTime() - new Date(start).getTime()) / 60000) : 45;
-        const dObj = start ? new Date(start) : new Date();
-        const timeStr = dObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        const nameStr = lastEx.exercise?.exerciseType ? lastEx.exercise.exerciseType.toLowerCase().replace(/_/g, ' ') : 'Workout';
-        setLatestExercise({
-          name: nameStr.charAt(0).toUpperCase() + nameStr.slice(1),
-          time: timeStr,
-          duration: `${Math.floor(durMin / 60) > 0 ? `${Math.floor(durMin / 60)} h ` : ''}${durMin % 60} m`,
-          distance: lastEx.exercise?.metricsSummary?.distanceMillimeters ? `${(Number(lastEx.exercise.metricsSummary.distanceMillimeters) / 1609344).toFixed(2)} mi` : undefined,
-        });
       }
 
       setLoading(false);
@@ -404,81 +382,6 @@ export function TodayHero() {
         </div>
       </div>
 
-      {/* Activity Tracked Card (Screenshot 2) */}
-      <div className="mt-4 rounded-[28px] bg-white dark:bg-[#151B21] border border-slate-200/90 dark:border-white/[0.08] p-5 shadow-xs">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-full bg-blue-500/10 text-blue-500 flex items-center justify-center">
-              <Play className="w-3.5 h-3.5 fill-current" />
-            </div>
-            <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
-              {latestExercise?.time || '5:34 pm'}
-            </span>
-          </div>
-          <span className="text-xs font-black text-slate-900 dark:text-white">
-            Activity tracked
-          </span>
-        </div>
-
-        <div className="rounded-2xl bg-slate-50 dark:bg-white/[0.04] p-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-white/[0.08] text-slate-700 dark:text-slate-200 flex items-center justify-center">
-              <Play className="w-4 h-4 fill-current" />
-            </div>
-            <div>
-              <p className="text-[11px] font-semibold text-slate-400">Today</p>
-              <p className="text-base font-black text-slate-900 dark:text-white">
-                {latestExercise?.name || 'Run'}
-              </p>
-              <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">
-                {latestExercise?.time || '4:00 pm'} • {latestExercise?.duration || '1 h 34 m'}
-                {latestExercise?.distance ? ` • ${latestExercise.distance}` : ` • ${distanceMiles} mi`}
-              </p>
-            </div>
-          </div>
-          <ArrowRight className="w-4 h-4 text-slate-400" />
-        </div>
-      </div>
-
-      {/* Welcome & Ask Coach Card (Screenshot 3) */}
-      <div className="relative mt-4 rounded-[28px] bg-white dark:bg-[#151B21] border border-slate-200/90 dark:border-white/[0.08] p-6 shadow-xs overflow-hidden">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-bold mb-3">
-          <MessageSquare className="w-3.5 h-3.5" />
-          <span>Welcome</span>
-        </div>
-
-        <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight mb-2">
-          Your personalized journey starts here
-        </h3>
-        <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-4">
-          Here are a few tips to get the most from Rachaqa Health:
-        </p>
-
-        <ul className="space-y-2.5 text-xs text-slate-600 dark:text-slate-300 max-w-xl pb-12 sm:pb-4">
-          <li className="flex items-start gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-slate-400 dark:bg-slate-500 mt-1.5 flex-shrink-0" />
-            <span>Ask Coach for help with anything from creating a workout to exploring trends</span>
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-slate-400 dark:bg-slate-500 mt-1.5 flex-shrink-0" />
-            <span>Find daily insights and recommendations on the Today tab</span>
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-slate-400 dark:bg-slate-500 mt-1.5 flex-shrink-0" />
-            <span>Check out your new weekly cardio target, and customize your metrics</span>
-          </li>
-        </ul>
-
-        {/* Floating Ask Coach Button (Screenshot 3) */}
-        <button
-          onClick={() => setShowCoachModal(true)}
-          className="absolute bottom-5 right-5 px-4 py-2.5 rounded-2xl bg-[#C2E7FF] dark:bg-[#2B4C7E] hover:bg-[#A8D8FA] dark:hover:bg-[#355B95] text-[#001D35] dark:text-[#E2EEFF] font-bold text-xs flex items-center gap-2 shadow-md transition-all cursor-pointer active:scale-98"
-        >
-          <Sparkles className="w-4 h-4 text-[#005B9E] dark:text-blue-300" />
-          <span>Ask Coach</span>
-        </button>
-      </div>
-
       {/* Quick Log Modal */}
       {showLogModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
@@ -573,61 +476,6 @@ export function TodayHero() {
                 </button>
               )}
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* Ask Coach Modal */}
-      {showCoachModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-lg rounded-[28px] bg-white dark:bg-[#181E24] border border-slate-200 dark:border-white/[0.08] p-6 shadow-2xl">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <div className="w-9 h-9 rounded-2xl bg-[#00B0B9] text-white flex items-center justify-center">
-                  <Sparkles className="w-5 h-5" />
-                </div>
-                <div>
-                  <h4 className="text-base font-black text-slate-900 dark:text-white">Coach Intelligence</h4>
-                  <p className="text-xs text-slate-400">Personalized biometric recommendations</p>
-                </div>
-              </div>
-              <button
-                onClick={() => setShowCoachModal(false)}
-                className="w-8 h-8 rounded-full bg-slate-100 dark:bg-white/[0.06] flex items-center justify-center text-slate-500 cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="space-y-3 mb-6">
-              <div className="p-3.5 rounded-2xl bg-teal-500/10 border border-teal-500/20">
-                <p className="text-xs font-bold text-teal-600 dark:text-teal-300 mb-1">Cardio & Daily Steps</p>
-                <p className="text-xs text-slate-700 dark:text-slate-300">
-                  You've logged {steps.toLocaleString()} steps today. A brisk 25-minute walk will push you across your 10,000 daily target!
-                </p>
-              </div>
-
-              <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20">
-                <p className="text-xs font-bold text-emerald-600 dark:text-emerald-300 mb-1">Readiness Score: {readinessScore}</p>
-                <p className="text-xs text-slate-700 dark:text-slate-300">
-                  Your body is well-recovered with balanced autonomic activity. Today is a great window for moderate-to-high intensity training.
-                </p>
-              </div>
-
-              <div className="p-3.5 rounded-2xl bg-purple-500/10 border border-purple-500/20">
-                <p className="text-xs font-bold text-purple-600 dark:text-purple-300 mb-1">Sleep Architecture</p>
-                <p className="text-xs text-slate-700 dark:text-slate-300">
-                  {sleepHours}h {sleepRemMins}m with a Sleep Score of {sleepScore} ({sleepQuality}). Deep and REM restorative stages are stable.
-                </p>
-              </div>
-            </div>
-
-            <button
-              onClick={() => setShowCoachModal(false)}
-              className="w-full py-3 rounded-full bg-[#00B0B9] text-white font-bold text-xs hover:bg-[#00969E] transition-colors cursor-pointer"
-            >
-              Got it, thanks!
-            </button>
           </div>
         </div>
       )}

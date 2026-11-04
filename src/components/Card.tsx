@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
-import { Maximize2, X, AlertCircle, Inbox, GripHorizontal } from 'lucide-react';
+import { Maximize2, X, AlertCircle, Inbox } from 'lucide-react';
 
 export const CardContext = createContext<{ onRemove?: () => void }>({});
 
@@ -54,27 +54,27 @@ export function Card({
   return (
     <>
       <div
-        className={`glass-card group relative overflow-hidden bg-white dark:bg-[#181E24] border border-slate-200/80 dark:border-white/[0.08] rounded-[28px] p-5 md:p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)] dark:shadow-[0_4px_24px_rgba(0,0,0,0.3)] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] dark:hover:shadow-[0_6px_28px_rgba(0,0,0,0.4)] transition-all duration-300 flex flex-col justify-between h-full select-none ${className}`}
+        className={`group relative overflow-hidden bg-white dark:bg-[#181E24] border border-slate-200/80 dark:border-white/[0.08] rounded-[28px] p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)] dark:shadow-[0_4px_24px_rgba(0,0,0,0.25)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] dark:hover:shadow-[0_8px_28px_rgba(0,0,0,0.35)] transition-all duration-200 flex flex-col justify-between h-full select-none ${className}`}
       >
-        <div className="relative z-10 flex items-start justify-between gap-3 mb-4">
-          <div className="fitbit-card-handle flex items-center gap-3 min-w-0 flex-1 cursor-grab active:cursor-grabbing group/handle">
+        {/* Card Header: Material 3 / Google Health Clean Header */}
+        <div className="relative z-10 flex items-start justify-between gap-3 mb-5">
+          <div className="flex items-center gap-3.5 min-w-0 flex-1">
             {icon && (
-              <div className={`w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 transition-transform group-hover/handle:scale-105 ${iconBg}`}>
+              <div className={`w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-xs ${iconBg}`}>
                 {icon}
               </div>
             )}
             <div className="min-w-0 flex-1">
               {category && (
-                <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 dark:text-slate-500 block mb-0.5">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 block mb-0.5">
                   {category}
                 </span>
               )}
               <div className="flex items-center gap-2">
-                <h3 className="text-base font-black tracking-tight text-slate-900 dark:text-white truncate">
+                <h3 className="text-base sm:text-lg font-black tracking-tight text-slate-900 dark:text-white truncate">
                   {title}
                 </h3>
                 {badge}
-                <GripHorizontal className="w-3.5 h-3.5 text-slate-300 dark:text-slate-600 opacity-0 group-hover/handle:opacity-100 transition-opacity ml-auto mr-1" />
               </div>
               {subtitle && (
                 <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">
@@ -88,7 +88,7 @@ export function Card({
             {headerActions}
             <button
               onClick={() => setIsExpanded(true)}
-              className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/[0.08] transition-colors cursor-pointer"
               title="Expand view"
             >
               <Maximize2 className="w-4 h-4" />
@@ -99,7 +99,7 @@ export function Card({
                   e.stopPropagation();
                   handleRemove();
                 }}
-                className="widget-remove-btn w-8 h-8 rounded-xl flex items-center justify-center text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
+                className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
                 title="Remove card"
               >
                 <X className="w-4 h-4" />
@@ -108,30 +108,32 @@ export function Card({
           </div>
         </div>
 
+        {/* Card Content */}
         <div className="relative z-10 flex-1 flex flex-col text-slate-800 dark:text-slate-200">
           {children}
         </div>
       </div>
 
+      {/* Expanded Modal View */}
       {isExpanded && typeof document !== 'undefined' && createPortal(
         <div
           className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-md p-4 md:p-8 animate-in fade-in duration-200"
           onClick={() => setIsExpanded(false)}
         >
           <div
-            className="glass-card bg-white dark:bg-[#181E24] border border-slate-200/80 dark:border-white/[0.08] rounded-[32px] w-full max-w-4xl max-h-[90vh] overflow-y-auto p-6 md:p-8 shadow-2xl flex flex-col text-slate-900 dark:text-white"
+            className="bg-white dark:bg-[#181E24] border border-slate-200/80 dark:border-white/[0.08] rounded-[32px] w-full max-w-4xl max-h-[90vh] overflow-y-auto p-6 md:p-8 shadow-2xl flex flex-col text-slate-900 dark:text-white"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-start justify-between mb-6 pb-4 border-b border-slate-200 dark:border-slate-800">
-              <div className="flex items-center gap-3">
+            <div className="flex items-start justify-between mb-6 pb-4 border-b border-slate-200 dark:border-white/[0.08]">
+              <div className="flex items-center gap-3.5">
                 {icon && (
-                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 ${iconBg}`}>
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-xs ${iconBg}`}>
                     {icon}
                   </div>
                 )}
                 <div>
                   <div className="flex items-center gap-2">
-                    <h2 className="text-2xl font-extrabold tracking-tight">{title}</h2>
+                    <h2 className="text-2xl font-black tracking-tight">{title}</h2>
                     {badge}
                   </div>
                   {subtitle && (
@@ -143,7 +145,7 @@ export function Card({
               </div>
               <button
                 onClick={() => setIsExpanded(false)}
-                className="w-10 h-10 rounded-2xl flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                className="w-10 h-10 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-white bg-slate-100 dark:bg-white/[0.08] hover:bg-slate-200 dark:hover:bg-white/[0.12] transition-colors cursor-pointer"
                 title="Close"
               >
                 <X className="w-5 h-5" />

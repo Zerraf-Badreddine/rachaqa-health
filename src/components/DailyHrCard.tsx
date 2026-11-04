@@ -264,39 +264,39 @@ export function DailyHrCard() {
     <Card
       title="24h Heart Rate"
       subtitle={dateLabel}
-      category="VITAL TELEMETRY"
+      category="Heart"
       accentColor="#EF4444"
       icon={<HeartPulse className="w-5 h-5 text-rose-500" />}
-      iconBg="bg-rose-500/10"
+      iconBg="bg-rose-500/10 text-rose-500"
       headerActions={navHeader}
       expandedContent={expandedView}
     >
-      <div className="flex justify-between items-center mb-4 text-xs bg-slate-50 dark:bg-white/[0.03] rounded-2xl p-3 border border-slate-200/80 dark:border-white/[0.06]">
+      <div className="flex justify-between items-center mb-4 text-xs bg-slate-50 dark:bg-white/[0.04] rounded-2xl p-3 border border-slate-200/80 dark:border-white/[0.06]">
         <div className="text-center flex-1">
-          <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500 block">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 block">
             Avg Pulse
           </span>
-          <span className="font-mono font-black text-slate-900 dark:text-white text-base tabular-nums">
+          <span className="font-black text-slate-900 dark:text-white text-base tabular-nums">
             {avgBpm}
           </span>
           <span className="text-[10px] font-semibold text-slate-400 ml-1">bpm</span>
         </div>
         <div className="border-r border-slate-200 dark:border-white/[0.08] h-6" />
         <div className="text-center flex-1">
-          <span className="text-[10px] font-extrabold uppercase tracking-wider text-rose-500 block">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-rose-500 block">
             Peak Pulse
           </span>
-          <span className="font-mono font-black text-rose-500 text-base tabular-nums">
+          <span className="font-black text-rose-500 text-base tabular-nums">
             {peakBpm}
           </span>
           <span className="text-[10px] font-semibold text-rose-400/80 ml-1">bpm</span>
         </div>
         <div className="border-r border-slate-200 dark:border-white/[0.08] h-6" />
         <div className="text-center flex-1">
-          <span className="text-[10px] font-extrabold uppercase tracking-wider text-sky-500 block">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-sky-500 block">
             Resting
           </span>
-          <span className="font-mono font-black text-sky-500 text-base tabular-nums">
+          <span className="font-black text-sky-500 text-base tabular-nums">
             {lowBpm}
           </span>
           <span className="text-[10px] font-semibold text-sky-400/80 ml-1">bpm</span>

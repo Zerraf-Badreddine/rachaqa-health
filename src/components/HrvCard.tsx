@@ -115,14 +115,14 @@ export function HrvCard() {
     <Card
       title="Heart Rate Variability"
       subtitle={`Last ${daysBack} days`}
-      category="AUTONOMIC STATUS"
+      category="Recovery"
       accentColor="#8B5CF6"
       icon={<Activity className="w-5 h-5 text-purple-400" />}
-      iconBg="bg-purple-500/10"
+      iconBg="bg-purple-500/10 text-purple-400"
       expandedContent={expandedView}
     >
       <div className="flex items-baseline gap-3 mb-1">
-        <p className="font-mono text-3xl font-black tracking-tight text-slate-900 dark:text-white tabular-nums">
+        <p className="text-3xl font-black tracking-tight text-slate-900 dark:text-white tabular-nums">
           {latest} <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">ms</span>
         </p>
         <span className={`text-xs px-2.5 py-0.5 rounded-full font-bold border ${statusColor}`}>{status}</span>

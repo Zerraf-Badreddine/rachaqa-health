@@ -326,30 +326,30 @@ export function CardioCard() {
 
   return (
     <Card
-      title="Cardio"
+      title="Cardio & Intensity"
       subtitle={`Last ${daysBack} days`}
-      category="ENDURANCE & AZM"
-      accentColor="#F59E0B"
-      icon={<Zap className="w-5 h-5 text-amber-500" />}
-      iconBg="bg-amber-500/10"
+      category="Fitness"
+      accentColor="#00B0B9"
+      icon={<Zap className="w-5 h-5 text-[#00B0B9]" />}
+      iconBg="bg-teal-500/10 text-[#00B0B9]"
       expandedContent={expandedView}
     >
       <div className="grid grid-cols-2 gap-2.5 mb-3">
-        <div className="bg-slate-50 dark:bg-white/[0.03] rounded-2xl p-3 border border-slate-200/80 dark:border-white/[0.06] hover:border-emerald-500/40 transition-colors">
-          <p className="font-mono text-2xl font-black text-slate-900 dark:text-white tabular-nums">{totalAzm}</p>
-          <p className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mt-0.5">Active Zone Min</p>
+        <div className="bg-slate-50 dark:bg-white/[0.04] rounded-2xl p-3 border border-slate-200/80 dark:border-white/[0.06]">
+          <p className="text-2xl font-black text-slate-900 dark:text-white tabular-nums">{totalAzm}</p>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mt-0.5">Active Zone Min</p>
         </div>
-        <div className="bg-slate-50 dark:bg-white/[0.03] rounded-2xl p-3 border border-slate-200/80 dark:border-white/[0.06] hover:border-teal-500/40 transition-colors">
-          <p className="font-mono text-2xl font-black text-[#00B0B9] tabular-nums">{latestVo2 ? latestVo2.dailyVo2Max.vo2Max.toFixed(1) : '—'}</p>
-          <p className="text-[10px] font-extrabold uppercase tracking-wider text-teal-600 dark:text-teal-400 mt-0.5">VO2 Max Score</p>
+        <div className="bg-slate-50 dark:bg-white/[0.04] rounded-2xl p-3 border border-slate-200/80 dark:border-white/[0.06]">
+          <p className="text-2xl font-black text-[#00B0B9] tabular-nums">{latestVo2 ? latestVo2.dailyVo2Max.vo2Max.toFixed(1) : '—'}</p>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-teal-600 dark:text-teal-400 mt-0.5">VO2 Max Score</p>
         </div>
-        <div className="bg-slate-50 dark:bg-white/[0.03] rounded-2xl p-3 border border-slate-200/80 dark:border-white/[0.06] hover:border-amber-500/40 transition-colors">
-          <p className="font-mono text-2xl font-black text-slate-900 dark:text-white tabular-nums">{Math.round(cardioZoneMinutes)}</p>
-          <p className="text-[10px] font-extrabold uppercase tracking-wider text-amber-600 dark:text-amber-400 mt-0.5">Cardio Zone Min</p>
+        <div className="bg-slate-50 dark:bg-white/[0.04] rounded-2xl p-3 border border-slate-200/80 dark:border-white/[0.06]">
+          <p className="text-2xl font-black text-slate-900 dark:text-white tabular-nums">{Math.round(cardioZoneMinutes)}</p>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 mt-0.5">Cardio Zone Min</p>
         </div>
-        <div className="bg-slate-50 dark:bg-white/[0.03] rounded-2xl p-3 border border-slate-200/80 dark:border-white/[0.06] hover:border-indigo-500/40 transition-colors">
-          <p className="font-mono text-2xl font-black text-slate-900 dark:text-white tabular-nums">{totalActiveMinutes}</p>
-          <p className="text-[10px] font-extrabold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 mt-0.5">Total Active Min</p>
+        <div className="bg-slate-50 dark:bg-white/[0.04] rounded-2xl p-3 border border-slate-200/80 dark:border-white/[0.06]">
+          <p className="text-2xl font-black text-slate-900 dark:text-white tabular-nums">{totalActiveMinutes}</p>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 mt-0.5">Total Active Min</p>
         </div>
       </div>
 
@@ -525,8 +525,8 @@ export function HeartZonesCard() {
     <Card
       title="Heart Zones"
       subtitle="Moderate and above"
-      category="INTENSITY DISTRIBUTION"
-      accentColor="#EC4899"
+      category="Fitness"
+      accentColor="#00B0B9"
       icon={<Heart className="w-5 h-5 text-pink-500" />}
       iconBg="bg-pink-500/10"
       expandedContent={expandedView}
@@ -542,7 +542,7 @@ export function HeartZonesCard() {
             <div key={label as string}>
               <div className="flex justify-between text-slate-600 dark:text-slate-400 mb-1 font-medium">
                 <span>{label}</span>
-                <span className="font-mono font-bold text-slate-900 dark:text-white tabular-nums">{Math.round(Number(minutes))}m</span>
+                <span className="font-bold text-slate-900 dark:text-white tabular-nums">{Math.round(Number(minutes))}m</span>
               </div>
               <div className="h-2 bg-slate-100 dark:bg-white/[0.06] rounded-full overflow-hidden">
                 <div className="h-full rounded-full transition-all duration-300" style={{ width: `${pct}%`, backgroundColor: color as string }} />
@@ -558,7 +558,7 @@ export function HeartZonesCard() {
           <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mt-0.5">fitness level</p>
         </div>
         <div className="bg-slate-50 dark:bg-white/[0.03] rounded-2xl p-2.5 border border-slate-200/80 dark:border-white/[0.06]">
-          <p className="font-mono text-slate-900 dark:text-white font-bold tabular-nums">{Math.round(cardioZoneMinutes)}m</p>
+          <p className="text-slate-900 dark:text-white font-bold tabular-nums">{Math.round(cardioZoneMinutes)}m</p>
           <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mt-0.5">cardio total</p>
         </div>
       </div>

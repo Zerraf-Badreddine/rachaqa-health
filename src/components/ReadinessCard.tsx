@@ -259,21 +259,21 @@ export function ReadinessCard() {
     <Card
       title="Daily Readiness"
       subtitle={`Last ${daysBack} days`}
-      category="AUTONOMIC BALANCE"
+      category="Recovery"
       accentColor="#10B981"
-      icon={<Sparkles className="w-5 h-5 text-[#10B981]" />}
-      iconBg="bg-emerald-500/10"
+      icon={<Sparkles className="w-5 h-5 text-emerald-500" />}
+      iconBg="bg-emerald-500/10 text-emerald-500"
       expandedContent={expandedView}
     >
       <div className="flex items-center gap-4 mb-4">
         <div
-          className="w-16 h-16 rounded-3xl flex flex-col items-center justify-center border-2 shadow-lg transition-transform hover:scale-105"
+          className="w-16 h-16 rounded-full flex flex-col items-center justify-center border-2 shadow-sm transition-transform hover:scale-105"
           style={{ borderColor: getScoreColor(today.score), backgroundColor: `${getScoreColor(today.score)}18` }}
         >
-          <span className="font-mono text-2xl font-black tracking-tight tabular-nums" style={{ color: getScoreColor(today.score) }}>
+          <span className="text-2xl font-black tracking-tight tabular-nums" style={{ color: getScoreColor(today.score) }}>
             {today.score}
           </span>
-          <span className="text-[9px] font-extrabold uppercase tracking-widest text-slate-400">/ 100</span>
+          <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400">/ 100</span>
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-base font-black truncate" style={{ color: getScoreColor(today.score) }}>

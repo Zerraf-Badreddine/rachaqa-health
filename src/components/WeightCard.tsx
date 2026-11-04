@@ -294,15 +294,15 @@ export function WeightCard() {
     <Card
       title="Weight & BMI"
       subtitle={`Last ${daysBack} days`}
-      category="BODY COMPOSITION"
+      category="Body"
       accentColor="#00B0B9"
       icon={<Scale className="w-5 h-5 text-[#00B0B9]" />}
-      iconBg="bg-teal-500/10"
+      iconBg="bg-teal-500/10 text-[#00B0B9]"
       headerActions={unitToggle}
       expandedContent={expandedView}
     >
       <div className="flex items-baseline gap-2 mb-3">
-        <p className="font-mono text-3xl font-black tracking-tight text-slate-900 dark:text-white tabular-nums">
+        <p className="text-3xl font-black tracking-tight text-slate-900 dark:text-white tabular-nums">
           {displayVal}
           <span className="text-sm font-semibold text-slate-400 ml-1.5">{unit}</span>
         </p>

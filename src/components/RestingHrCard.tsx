@@ -86,15 +86,15 @@ export function RestingHrCard() {
     <Card
       title="Resting Heart Rate"
       subtitle={`Last ${daysBack} days`}
-      category="VITAL BASELINE"
+      category="Heart"
       accentColor="#F43F5E"
       icon={<Heart className="w-5 h-5 text-rose-500" />}
-      iconBg="bg-rose-500/10"
+      iconBg="bg-rose-500/10 text-rose-500"
       expandedContent={expandedView}
     >
       <div className="flex items-baseline justify-between mb-3">
         <div className="flex items-baseline gap-2">
-          <p className="font-mono text-3xl font-black tracking-tight text-slate-900 dark:text-white tabular-nums">
+          <p className="text-3xl font-black tracking-tight text-slate-900 dark:text-white tabular-nums">
             {latest}
           </p>
           <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">bpm</span>

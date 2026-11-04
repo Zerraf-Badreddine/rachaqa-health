@@ -117,24 +117,50 @@ export function Layout({
       {/* Top Header: Official Google Health / Fitbit status bar */}
       <header className="glass-header sticky top-0 z-40 bg-white/85 dark:bg-[#0D1115]/90 backdrop-blur-xl border-b border-slate-200/80 dark:border-white/[0.06] px-4 md:px-8 py-2.5 transition-colors duration-200">
         <div className={`${fullWidth ? '' : 'max-w-7xl'} mx-auto flex items-center justify-between gap-3 relative z-10`}>
-          {/* Left: Battery Capsule */}
+          {/* Left: Battery Capsule & Title */}
           <div className="flex items-center gap-3">
             <BatteryPill tracker={tracker} />
             <div className="hidden sm:flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Synced</span>
             </div>
+            <div className="h-4 w-px bg-slate-200 dark:bg-white/[0.1] hidden sm:block" />
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-full bg-[#00B0B9] text-white flex items-center justify-center shadow-xs">
+                <HeartPulse className="w-4 h-4" />
+              </div>
+              <h1 className="text-base sm:text-lg font-black tracking-tight text-slate-900 dark:text-white">
+                Rachaqa <span className="text-[#00B0B9] font-semibold">Health</span>
+              </h1>
+            </div>
           </div>
 
-          {/* Center Title */}
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-full bg-[#00B0B9] text-white flex items-center justify-center shadow-xs">
-              <HeartPulse className="w-4 h-4" />
-            </div>
-            <h1 className="text-base sm:text-lg font-black tracking-tight text-slate-900 dark:text-white">
-              Rachaqa <span className="text-[#00B0B9] font-semibold">Health</span>
-            </h1>
-          </div>
+          {/* Center: Desktop 4-Tab Navigation (Screenshots 2, 3, & 4) */}
+          <nav className="hidden md:flex items-center gap-1 bg-slate-100/90 dark:bg-white/[0.05] p-1 rounded-full border border-slate-200/80 dark:border-white/[0.08]">
+            {[
+              { id: 'today' as GoogleHealthTab, label: 'Today', icon: Sun },
+              { id: 'fitness' as GoogleHealthTab, label: 'Fitness', icon: Dumbbell },
+              { id: 'sleep' as GoogleHealthTab, label: 'Sleep', icon: Moon },
+              { id: 'health' as GoogleHealthTab, label: 'Health', icon: HeartPulse },
+            ].map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => onSelectTab && onSelectTab(tab.id)}
+                  className={`flex items-center gap-2 px-4 py-1.5 rounded-full font-bold text-xs transition-all cursor-pointer ${
+                    isActive
+                      ? 'bg-[#C2E7FF] dark:bg-[#004A77] text-[#001D35] dark:text-[#C2E7FF] shadow-xs'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                >
+                  <Icon className={`w-4 h-4 ${isActive ? 'stroke-[2.5]' : 'stroke-[2]'}`} />
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
+          </nav>
 
           {/* Right Actions */}
           <div className="flex items-center gap-2">
@@ -224,12 +250,12 @@ export function Layout({
       </header>
 
       {/* Main Content Area */}
-      <main className={`${fullWidth ? '' : 'max-w-7xl'} mx-auto p-4 md:p-6 lg:p-8 flex-1 w-full pb-28`}>
+      <main className={`${fullWidth ? '' : 'max-w-7xl'} mx-auto p-4 md:p-6 lg:p-8 flex-1 w-full pb-28 md:pb-12`}>
         {children}
       </main>
 
-      {/* Official 4-Tab Bottom Navigation Bar (Screenshots 2, 3, & 4) */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/90 dark:bg-[#0D1115]/95 backdrop-blur-xl border-t border-slate-200/80 dark:border-white/[0.08] py-2 px-4 select-none">
+      {/* Official 4-Tab Bottom Navigation Bar (Mobile only, Screenshots 2, 3, & 4) */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#0D1115]/95 backdrop-blur-xl border-t border-slate-200/80 dark:border-white/[0.08] py-2 px-4 select-none">
         <div className="max-w-md mx-auto flex items-center justify-between">
           {[
             { id: 'today' as GoogleHealthTab, label: 'Today', icon: Sun },
@@ -270,7 +296,7 @@ export function Layout({
       </nav>
 
       {/* Footer */}
-      <footer className={`${fullWidth ? '' : 'max-w-7xl'} mx-auto w-full px-4 md:px-6 lg:px-8 py-6 text-xs text-slate-400 dark:text-slate-500 border-t border-slate-200/60 dark:border-white/[0.04] flex flex-col sm:flex-row items-center justify-between gap-3 pb-24`}>
+      <footer className={`${fullWidth ? '' : 'max-w-7xl'} mx-auto w-full px-4 md:px-6 lg:px-8 py-6 text-xs text-slate-400 dark:text-slate-500 border-t border-slate-200/60 dark:border-white/[0.04] flex flex-col sm:flex-row items-center justify-between gap-3 pb-24 md:pb-8`}>
         <p>Rachaqa Health • Personal wellness intelligence</p>
         <div className="flex items-center gap-4 font-semibold">
           <a

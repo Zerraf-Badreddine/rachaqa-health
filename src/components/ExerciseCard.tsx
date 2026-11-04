@@ -207,7 +207,7 @@ function ExerciseModal({ exercise, onClose, accessToken }: { exercise: ExerciseD
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={onClose}>
       <div
-        className="bg-gray-900 border border-gray-700 rounded-2xl p-5 w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto"
+        className="bg-white dark:bg-[#181E24] border border-slate-200 dark:border-white/[0.08] rounded-[28px] p-6 w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto shadow-2xl"
         onClick={(ev) => ev.stopPropagation()}
       >
         <div className="flex justify-between items-start mb-4">
@@ -365,7 +365,7 @@ export function ExerciseCard() {
     <Card
       title="Workouts & Logs"
       subtitle={`${monthStats.totalExercises} sessions / ${monthStats.activeDays} active days`}
-      category="TRAINING & WORKOUTS"
+      category="Fitness"
       accentColor="#8B5CF6"
       icon={<Dumbbell className="w-5 h-5 text-violet-400" />}
       iconBg="bg-violet-500/10"

@@ -527,10 +527,10 @@ export function NutritionCard() {
     <Card
       title="Nutrition & Macros"
       subtitle={view === 'today' ? 'Today' : view === 'foods' ? 'Food Log' : view === 'deficit' ? 'Deficit - Last 7 days' : `Last ${daysBack} days`}
-      category="METABOLIC INTAKE"
+      category="Nutrition"
       accentColor="#F59E0B"
       icon={<Utensils className="w-5 h-5 text-amber-500" />}
-      iconBg="bg-amber-500/10"
+      iconBg="bg-amber-500/10 text-amber-500"
       expandedContent={expandedView}
     >
       <div className="flex items-center justify-between mb-3">

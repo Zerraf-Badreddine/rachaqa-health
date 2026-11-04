@@ -68,7 +68,7 @@ export function DebugCard() {
     <Card
       title="Debug: User Info"
       subtitle="Raw API responses"
-      category="SYSTEM TELEMETRY"
+      category="Diagnostics"
       accentColor="#64748B"
       expandedContent={content}
     >

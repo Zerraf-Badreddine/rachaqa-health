@@ -195,16 +195,16 @@ export function SleepCard() {
     <Card
       title="Sleep & Stages"
       subtitle={`Last ${daysBack} days`}
-      category="CIRCADIAN ARCHITECTURE"
-      accentColor="#6366F1"
-      icon={<Moon className="w-5 h-5 text-indigo-400" />}
-      iconBg="bg-indigo-500/10"
+      category="Sleep"
+      accentColor="#8B5CF6"
+      icon={<Moon className="w-5 h-5 text-purple-400" />}
+      iconBg="bg-purple-500/10 text-purple-400"
       expandedContent={expandedView}
     >
       <div className="flex items-center justify-between mb-4">
         <div>
           <div className="flex items-baseline gap-2">
-            <span className="font-mono text-3xl font-black tracking-tight text-slate-900 dark:text-white tabular-nums">
+            <span className="text-3xl font-black tracking-tight text-slate-900 dark:text-white tabular-nums">
               {formatMinutes(lastNight.total)}
             </span>
             <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">last night</span>
@@ -216,42 +216,42 @@ export function SleepCard() {
 
         <div className="flex items-center gap-3 bg-slate-50 dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/[0.06] rounded-2xl px-3.5 py-2">
           <div className="text-right">
-            <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 block">Score</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Score</span>
             <span className={`text-xs font-bold ${quality.color}`}>{quality.label}</span>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center font-mono font-black text-indigo-400 text-lg tabular-nums">
+          <div className="w-10 h-10 rounded-xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center font-black text-purple-400 text-lg tabular-nums">
             {lastNight.score}
           </div>
         </div>
       </div>
 
-      {/* Proportional Stage Hypnogram Bar */}
-      <div className="mb-4 bg-slate-50 dark:bg-white/[0.02] p-3 rounded-2xl border border-slate-200/70 dark:border-white/[0.05]">
+      {/* Proportional Stage Hypnogram Bar (Official Google Health Colors) */}
+      <div className="mb-4 bg-slate-50 dark:bg-white/[0.04] p-3.5 rounded-2xl border border-slate-200/70 dark:border-white/[0.06]">
         <div className="flex justify-between items-center mb-1.5 text-xs">
-          <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Stage Architecture</span>
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Stages</span>
           <span className="text-[10px] text-slate-400 font-medium">Total: {formatMinutes(lastNight.total)}</span>
         </div>
         <div className="h-3.5 w-full rounded-xl overflow-hidden flex shadow-xs mb-2 bg-slate-200/70 dark:bg-slate-800/80">
-          <div style={{ width: `${pctDeep}%` }} className="bg-[#3b82f6] transition-all duration-500" title={`Deep: ${formatMinutes(lastNight.deep)} (${pctDeep}%)`} />
-          <div style={{ width: `${pctRem}%` }} className="bg-[#06b6d4] transition-all duration-500" title={`REM: ${formatMinutes(lastNight.rem)} (${pctRem}%)`} />
-          <div style={{ width: `${pctLight}%` }} className="bg-[#93c5fd] transition-all duration-500" title={`Light: ${formatMinutes(lastNight.light)} (${pctLight}%)`} />
-          <div style={{ width: `${pctAwake}%` }} className="bg-[#f43f5e] transition-all duration-500" title={`Awake: ${formatMinutes(lastNight.awake)} (${pctAwake}%)`} />
+          <div style={{ width: `${pctDeep}%`, backgroundColor: STAGE_COLORS.DEEP }} className="transition-all duration-500" title={`Deep: ${formatMinutes(lastNight.deep)} (${pctDeep}%)`} />
+          <div style={{ width: `${pctRem}%`, backgroundColor: STAGE_COLORS.REM }} className="transition-all duration-500" title={`REM: ${formatMinutes(lastNight.rem)} (${pctRem}%)`} />
+          <div style={{ width: `${pctLight}%`, backgroundColor: STAGE_COLORS.LIGHT }} className="transition-all duration-500" title={`Light: ${formatMinutes(lastNight.light)} (${pctLight}%)`} />
+          <div style={{ width: `${pctAwake}%`, backgroundColor: STAGE_COLORS.AWAKE }} className="transition-all duration-500" title={`Awake: ${formatMinutes(lastNight.awake)} (${pctAwake}%)`} />
         </div>
         <div className="grid grid-cols-4 gap-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 text-center">
           <div className="flex items-center justify-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#3b82f6]" />
+            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: STAGE_COLORS.DEEP }} />
             <span>Deep {pctDeep}%</span>
           </div>
           <div className="flex items-center justify-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#06b6d4]" />
+            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: STAGE_COLORS.REM }} />
             <span>REM {pctRem}%</span>
           </div>
           <div className="flex items-center justify-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#93c5fd]" />
+            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: STAGE_COLORS.LIGHT }} />
             <span>Light {pctLight}%</span>
           </div>
           <div className="flex items-center justify-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#f43f5e]" />
+            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: STAGE_COLORS.AWAKE }} />
             <span>Awake {pctAwake}%</span>
           </div>
         </div>

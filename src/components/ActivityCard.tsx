@@ -208,22 +208,22 @@ export function ActivityCard() {
     <Card
       title="Activity & Steps"
       subtitle={`Goal: ${goals.daily.toLocaleString()} steps/day`}
-      category="KINETICS & MOVEMENT"
-      accentColor="#FF7043"
-      icon={<Footprints className="w-5 h-5 text-[#FF7043]" />}
-      iconBg="bg-orange-500/10"
+      category="Activity"
+      accentColor="#00B0B9"
+      icon={<Footprints className="w-5 h-5 text-[#00B0B9]" />}
+      iconBg="bg-teal-500/10 text-[#00B0B9]"
       headerActions={editButton}
       expandedContent={expandedView}
     >
-      <div className="flex items-baseline justify-between mb-2">
+      <div className="flex items-baseline justify-between mb-3">
         <div>
-          <p className="font-mono text-3xl md:text-4xl font-black tracking-tight text-slate-900 dark:text-white tabular-nums">
+          <p className="text-3xl md:text-4xl font-black tracking-tight text-slate-900 dark:text-white tabular-nums">
             {todaySteps.toLocaleString()}
           </p>
-          <p className="text-xs font-semibold text-slate-400 mt-0.5">steps taken today</p>
+          <p className="text-xs font-semibold text-slate-400 mt-0.5">steps today</p>
         </div>
         <div className="text-right">
-          <span className="font-mono text-base font-black text-[#FF7043] tabular-nums">
+          <span className="text-base font-black text-[#00B0B9] tabular-nums">
             {Math.round(progressRatio * 100)}%
           </span>
           <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">of goal</p>
@@ -231,38 +231,38 @@ export function ActivityCard() {
       </div>
 
       {/* Progress track */}
-      <div className="h-2 w-full bg-slate-100 dark:bg-white/[0.06] rounded-full overflow-hidden mb-4">
+      <div className="h-2.5 w-full bg-slate-100 dark:bg-white/[0.08] rounded-full overflow-hidden mb-4">
         <div
           className="h-full rounded-full transition-all duration-700 ease-out shadow-xs"
           style={{
             width: `${progressRatio * 100}%`,
-            backgroundColor: progressRatio >= 1 ? '#10B981' : '#FF7043',
+            backgroundColor: progressRatio >= 1 ? '#10B981' : '#00B0B9',
           }}
         />
       </div>
 
       {/* Metric chips */}
       <div className="grid grid-cols-3 gap-2 mb-4 text-xs">
-        <div className="bg-slate-50 dark:bg-white/[0.03] rounded-2xl p-2.5 border border-slate-200/80 dark:border-white/[0.06]">
+        <div className="bg-slate-50 dark:bg-white/[0.04] rounded-2xl p-3 border border-slate-200/80 dark:border-white/[0.06]">
           <div className="flex items-center gap-1 text-slate-400 mb-1">
             <Route className="w-3.5 h-3.5 text-teal-500" />
             <span className="text-[10px] font-extrabold uppercase tracking-wider">Dist</span>
           </div>
-          <p className="font-mono font-bold text-slate-900 dark:text-white tabular-nums">{todayDistanceKm} km</p>
+          <p className="font-black text-slate-900 dark:text-white tabular-nums">{todayDistanceKm} km</p>
         </div>
-        <div className="bg-slate-50 dark:bg-white/[0.03] rounded-2xl p-2.5 border border-slate-200/80 dark:border-white/[0.06]">
+        <div className="bg-slate-50 dark:bg-white/[0.04] rounded-2xl p-3 border border-slate-200/80 dark:border-white/[0.06]">
           <div className="flex items-center gap-1 text-slate-400 mb-1">
             <Flame className="w-3.5 h-3.5 text-orange-500" />
             <span className="text-[10px] font-extrabold uppercase tracking-wider">Burned</span>
           </div>
-          <p className="font-mono font-bold text-slate-900 dark:text-white tabular-nums">{totalCalories > 0 ? totalCalories.toLocaleString() : '—'} kcal</p>
+          <p className="font-black text-slate-900 dark:text-white tabular-nums">{totalCalories > 0 ? totalCalories.toLocaleString() : '—'} kcal</p>
         </div>
-        <div className="bg-slate-50 dark:bg-white/[0.03] rounded-2xl p-2.5 border border-slate-200/80 dark:border-white/[0.06]">
+        <div className="bg-slate-50 dark:bg-white/[0.04] rounded-2xl p-3 border border-slate-200/80 dark:border-white/[0.06]">
           <div className="flex items-center gap-1 text-slate-400 mb-1">
             <Target className="w-3.5 h-3.5 text-emerald-500" />
             <span className="text-[10px] font-extrabold uppercase tracking-wider">Streak</span>
           </div>
-          <p className="font-mono font-bold text-slate-900 dark:text-white tabular-nums">{daysHit}/{weekDays} d</p>
+          <p className="font-black text-slate-900 dark:text-white tabular-nums">{daysHit}/{weekDays} d</p>
         </div>
       </div>
 
