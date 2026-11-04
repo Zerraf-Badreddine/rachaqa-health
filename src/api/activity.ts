@@ -141,27 +141,5 @@ export async function getActiveCaloriesDaily(
   accessToken: string,
   daysBack: number = 7
 ): Promise<CaloriesRollupDataPoint[]> {
-  const dataTypes = ['active-energy-burned', 'active-calories-burned', 'calories-expended'];
-  const clampedDays = Math.min(daysBack, 14);
-
-  for (const dataType of dataTypes) {
-    try {
-      const data = await healthFetch<RollupResponse<CaloriesRollupDataPoint>>(
-        `/users/me/dataTypes/${dataType}/dataPoints:dailyRollUp`,
-        accessToken,
-        {
-          method: 'POST',
-          body: JSON.stringify(getDailyRollUpBody(clampedDays)),
-        }
-      );
-
-      if (data.rollupDataPoints && data.rollupDataPoints.length > 0) {
-        return data.rollupDataPoints;
-      }
-    } catch {
-      // Continue to next calorie data type
-    }
-  }
-
-  return [];
+  return getCaloriesDaily(accessToken, daysBack);
 }

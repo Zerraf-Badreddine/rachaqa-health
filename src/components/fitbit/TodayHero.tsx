@@ -49,6 +49,13 @@ export function TodayHero() {
   const [showStartModal, setShowStartModal] = useState(false);
   const [workoutActive, setWorkoutActive] = useState(false);
   const [workoutSeconds, setWorkoutSeconds] = useState(0);
+  const [logSubView, setLogSubView] = useState<'menu' | 'food' | 'weight'>('menu');
+  const [logToast, setLogToast] = useState<string | null>(null);
+  const [logCaloriesInput, setLogCaloriesInput] = useState<string>('350');
+  const [logWeightInput, setLogWeightInput] = useState<string>('71.5');
+  const [waterLoggedMl, setWaterLoggedMl] = useState<number>(() => {
+    try { return Number(localStorage.getItem('logged_water_ml') || '1250'); } catch { return 1250; }
+  });
 
   const stepGoal = 10000;
 
@@ -387,44 +394,180 @@ export function TodayHero() {
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="w-full max-w-md rounded-[28px] bg-white dark:bg-[#181E24] border border-slate-200 dark:border-white/[0.08] p-6 shadow-2xl">
             <div className="flex items-center justify-between mb-4">
-              <h4 className="text-lg font-black text-slate-900 dark:text-white">Quick Log</h4>
+              <div className="flex items-center gap-2">
+                {logSubView !== 'menu' && (
+                  <button
+                    onClick={() => setLogSubView('menu')}
+                    className="text-xs font-bold text-[#00B0B9] hover:underline cursor-pointer"
+                  >
+                    Back
+                  </button>
+                )}
+                <h4 className="text-lg font-black text-slate-900 dark:text-white">
+                  {logSubView === 'menu' && 'Quick Log'}
+                  {logSubView === 'food' && 'Log Calories'}
+                  {logSubView === 'weight' && 'Log Weight'}
+                </h4>
+              </div>
               <button
-                onClick={() => setShowLogModal(false)}
+                onClick={() => {
+                  setShowLogModal(false);
+                  setLogSubView('menu');
+                  setLogToast(null);
+                }}
                 className="w-8 h-8 rounded-full bg-slate-100 dark:bg-white/[0.06] flex items-center justify-center text-slate-500 cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                onClick={() => setShowLogModal(false)}
-                className="p-4 rounded-2xl bg-teal-500/10 border border-teal-500/20 text-teal-600 dark:text-teal-300 flex flex-col items-center gap-2 cursor-pointer hover:bg-teal-500/15"
-              >
-                <Droplets className="w-6 h-6" />
-                <span className="text-xs font-bold">Water (250ml)</span>
-              </button>
-              <button
-                onClick={() => setShowLogModal(false)}
-                className="p-4 rounded-2xl bg-orange-500/10 border border-orange-500/20 text-orange-600 dark:text-orange-300 flex flex-col items-center gap-2 cursor-pointer hover:bg-orange-500/15"
-              >
-                <UtensilsCrossed className="w-6 h-6" />
-                <span className="text-xs font-bold">Food & Calories</span>
-              </button>
-              <button
-                onClick={() => setShowLogModal(false)}
-                className="p-4 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-600 dark:text-blue-300 flex flex-col items-center gap-2 cursor-pointer hover:bg-blue-500/15"
-              >
-                <Scale className="w-6 h-6" />
-                <span className="text-xs font-bold">Weight Entry</span>
-              </button>
-              <button
-                onClick={() => setShowLogModal(false)}
-                className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-300 flex flex-col items-center gap-2 cursor-pointer hover:bg-emerald-500/15"
-              >
-                <Dumbbell className="w-6 h-6" />
-                <span className="text-xs font-bold">Workout Session</span>
-              </button>
-            </div>
+
+            {logToast && (
+              <div className="mb-4 p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-xs font-semibold flex items-center gap-2">
+                <Check className="w-4 h-4 flex-shrink-0" />
+                <span>{logToast}</span>
+              </div>
+            )}
+
+            {logSubView === 'menu' && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    onClick={() => {
+                      const next = waterLoggedMl + 250;
+                      setWaterLoggedMl(next);
+                      localStorage.setItem('logged_water_ml', String(next));
+                      setLogToast(`Logged +250ml water! Today: ${(next / 1000).toFixed(2)} L`);
+                      setTimeout(() => setLogToast(null), 3000);
+                    }}
+                    className="p-4 rounded-2xl bg-teal-500/10 border border-teal-500/20 text-teal-600 dark:text-teal-300 flex flex-col items-center gap-2 cursor-pointer hover:bg-teal-500/15 transition-colors"
+                  >
+                    <Droplets className="w-6 h-6" />
+                    <span className="text-xs font-bold">Water (+250ml)</span>
+                    <span className="text-[10px] text-teal-500 font-medium">Current: {(waterLoggedMl / 1000).toFixed(2)}L</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setLogSubView('food');
+                      setLogToast(null);
+                    }}
+                    className="p-4 rounded-2xl bg-orange-500/10 border border-orange-500/20 text-orange-600 dark:text-orange-300 flex flex-col items-center gap-2 cursor-pointer hover:bg-orange-500/15 transition-colors"
+                  >
+                    <UtensilsCrossed className="w-6 h-6" />
+                    <span className="text-xs font-bold">Food & Calories</span>
+                    <span className="text-[10px] text-orange-500 font-medium">Log meal or snack</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setLogSubView('weight');
+                      setLogToast(null);
+                    }}
+                    className="p-4 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-600 dark:text-blue-300 flex flex-col items-center gap-2 cursor-pointer hover:bg-blue-500/15 transition-colors"
+                  >
+                    <Scale className="w-6 h-6" />
+                    <span className="text-xs font-bold">Weight Entry</span>
+                    <span className="text-[10px] text-blue-500 font-medium">Record scale reading</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowLogModal(false);
+                      setShowStartModal(true);
+                    }}
+                    className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-300 flex flex-col items-center gap-2 cursor-pointer hover:bg-emerald-500/15 transition-colors"
+                  >
+                    <Dumbbell className="w-6 h-6" />
+                    <span className="text-xs font-bold">Workout Session</span>
+                    <span className="text-[10px] text-emerald-500 font-medium">Start cardio tracker</span>
+                  </button>
+                </div>
+
+                <p className="text-[11px] text-slate-400 text-center leading-relaxed">
+                  Google Health connection is active with read-only scopes. Quick log entries are saved to your local telemetry.
+                </p>
+              </div>
+            )}
+
+            {logSubView === 'food' && (
+              <div className="space-y-4">
+                <div>
+                  <label className="text-xs font-bold text-slate-500 dark:text-slate-400 block mb-1.5">
+                    Calories (kcal)
+                  </label>
+                  <input
+                    type="number"
+                    value={logCaloriesInput}
+                    onChange={(e) => setLogCaloriesInput(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.1] text-base font-bold text-slate-900 dark:text-white outline-none focus:border-[#00B0B9]"
+                    placeholder="350"
+                  />
+                </div>
+
+                <div className="flex gap-2">
+                  {[200, 350, 500, 750].map((val) => (
+                    <button
+                      key={val}
+                      onClick={() => setLogCaloriesInput(String(val))}
+                      className="flex-1 py-1.5 rounded-xl bg-slate-100 dark:bg-white/[0.05] hover:bg-slate-200 dark:hover:bg-white/[0.1] text-xs font-bold text-slate-700 dark:text-slate-300 cursor-pointer transition-colors"
+                    >
+                      {val} kcal
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  onClick={() => {
+                    const added = Number(logCaloriesInput) || 0;
+                    if (added > 0) {
+                      setCalories((c) => c + added);
+                      setLogToast(`Logged +${added} kcal! Updated today's total.`);
+                      setTimeout(() => {
+                        setShowLogModal(false);
+                        setLogSubView('menu');
+                        setLogToast(null);
+                      }, 1500);
+                    }
+                  }}
+                  className="w-full py-3 rounded-full bg-[#00B0B9] hover:bg-[#00969E] text-white font-bold text-sm cursor-pointer shadow-md transition-all active:scale-98"
+                >
+                  Log Calories
+                </button>
+              </div>
+            )}
+
+            {logSubView === 'weight' && (
+              <div className="space-y-4">
+                <div>
+                  <label className="text-xs font-bold text-slate-500 dark:text-slate-400 block mb-1.5">
+                    Weight (kg)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={logWeightInput}
+                    onChange={(e) => setLogWeightInput(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.1] text-base font-bold text-slate-900 dark:text-white outline-none focus:border-[#00B0B9]"
+                    placeholder="71.5"
+                  />
+                </div>
+
+                <button
+                  onClick={() => {
+                    const wt = Number(logWeightInput) || 0;
+                    if (wt > 0) {
+                      localStorage.setItem('logged_weight_kg', String(wt));
+                      setLogToast(`Weight entry ${wt} kg logged successfully!`);
+                      setTimeout(() => {
+                        setShowLogModal(false);
+                        setLogSubView('menu');
+                        setLogToast(null);
+                      }, 1500);
+                    }
+                  }}
+                  className="w-full py-3 rounded-full bg-[#00B0B9] hover:bg-[#00969E] text-white font-bold text-sm cursor-pointer shadow-md transition-all active:scale-98"
+                >
+                  Save Weight
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
