@@ -201,7 +201,11 @@ function AddWidgetModal({
                       </div>
                       <p className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#00B0B9] transition-colors">{def.name}</p>
                     </div>
-                    {hasData === true ? (
+                    {count > 0 ? (
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-teal-50 dark:bg-teal-950/60 text-[#00B0B9] border border-teal-500/20 font-bold flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3" /> Active
+                      </span>
+                    ) : hasData === true ? (
                       <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800 font-semibold flex items-center gap-1">
                         <CheckCircle2 className="w-3 h-3" /> Data
                       </span>
@@ -213,8 +217,10 @@ function AddWidgetModal({
                   </div>
                   <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{def.description}</p>
                 </div>
-                {count > 0 && (
-                  <p className="text-[10px] text-teal-600 dark:text-teal-400 mt-2 font-semibold">{count} active on grid</p>
+                {count > 0 ? (
+                  <p className="text-[10px] text-teal-600 dark:text-teal-400 mt-2 font-semibold">Active on dashboard • Click to bring to top</p>
+                ) : (
+                  <p className="text-[10px] text-slate-400 mt-2 font-medium">Click to add to dashboard</p>
                 )}
               </button>
             );
@@ -273,15 +279,12 @@ export function DashboardGrid({ activeTab = 'today' }: { activeTab?: GoogleHealt
   const addWidget = useCallback((type: string) => {
     let nextInstances: WidgetInstance[] = [];
     setInstances((prev) => {
+      // Find any existing card of this type
       const existing = prev.find((inst) => inst.type === type);
-      if (existing) {
-        // Move to the very top so user sees it right away
-        nextInstances = [existing, ...prev.filter((inst) => inst.id !== existing.id)];
-      } else {
-        const id = createInstanceId(type);
-        const newInst: WidgetInstance = { id, type };
-        nextInstances = [newInst, ...prev];
-      }
+      // Remove all instances of this type to guarantee zero duplication
+      const remaining = prev.filter((inst) => inst.type !== type);
+      const cardToPlace = existing || { id: createInstanceId(type), type };
+      nextInstances = [cardToPlace, ...remaining];
       return nextInstances;
     });
 
@@ -394,6 +397,14 @@ export function DashboardGrid({ activeTab = 'today' }: { activeTab?: GoogleHealt
     return allowed ? allowed.includes(inst.type) : true;
   });
 
+  // Strict deduplication by widget type so each card appears exactly once
+  const seenTypes = new Set<string>();
+  const uniqueVisibleInstances = visibleInstances.filter((inst) => {
+    if (seenTypes.has(inst.type)) return false;
+    seenTypes.add(inst.type);
+    return true;
+  });
+
   return (
     <div>
       {/* Top Section based on Active Tab */}
@@ -455,7 +466,7 @@ export function DashboardGrid({ activeTab = 'today' }: { activeTab?: GoogleHealt
               {activeTab === 'health' && 'Biometric Trends'}
             </h3>
             <span className="text-xs px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-white/[0.08] font-bold text-slate-600 dark:text-slate-300">
-              {visibleInstances.length} cards
+              {uniqueVisibleInstances.length} cards
             </span>
           </div>
 
@@ -547,7 +558,7 @@ export function DashboardGrid({ activeTab = 'today' }: { activeTab?: GoogleHealt
       {/* Grid or Feed Content */}
       {viewMode === 'feed' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
-          {visibleInstances.map((inst) => {
+          {uniqueVisibleInstances.map((inst) => {
             const def = WIDGET_REGISTRY[inst.type];
             if (!def) return null;
             const isWide = def.defaultW >= 8;
@@ -594,7 +605,7 @@ export function DashboardGrid({ activeTab = 'today' }: { activeTab?: GoogleHealt
               resizeConfig={{ enabled: true, handles: ['se'] }}
               onLayoutChange={(_: Layout, allLayouts: ResponsiveLayouts) => setLayouts(allLayouts)}
             >
-              {visibleInstances.map((inst) => {
+              {uniqueVisibleInstances.map((inst) => {
                 const def = WIDGET_REGISTRY[inst.type];
                 if (!def) return <div key={inst.id} />;
                 return (
